@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inspección Celdas Flotación 3110</title>
+
+    <style>
+        :root { --primary-color: #d32f2f; --dark-bg: #1e293b; --light-bg: #f1f5f9; --border-color: #cbd5e1; --input-bg: #ffffff; --success: #22c55e;}
+        body { font-family: 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 0; background-color: var(--light-bg); color: #333; }
+        
+        /* ================= APP UI (Pantalla) ================= */
+        #app-area { max-width: 900px; margin: 0 auto; padding: 15px; padding-bottom: 80px; }
+        .app-card { background: #ffffff; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; }
+        
+        .header-mobile { text-align: center; margin-bottom: 10px; }
+        .header-mobile h1 { font-size: 18px; color: var(--dark-bg); margin: 0 0 5px 0; text-transform: uppercase;}
+        .header-mobile p { font-size: 13px; color: #64748b; margin: 0; }
+
+        .info-grid { display: grid; grid-template-columns: 1fr; gap: 15px; }
+        @media(min-width: 600px) { .info-grid { grid-template-columns: repeat(3, 1fr); gap: 20px; } }
+        
+        .info-field { display: flex; flex-direction: column; gap: 6px; justify-content: flex-end; }
+        .info-field label { font-size: 12px; font-weight: 700; color: #475569; }
+        .info-field input { width: 100%; height: 42px; border: 1px solid var(--border-color); border-radius: 6px; padding: 0 12px; font-size: 14px; outline: none; box-sizing: border-box; font-family: inherit;}
+        .info-field input:focus { border-color: var(--primary-color); }
+
+        /* Selector de Celdas */
+        .pump-section-title { font-size: 14px; color: white; background: var(--dark-bg); padding: 8px 12px; margin-top: 20px; margin-bottom: 10px; border-radius: 6px; font-weight: bold;}
+        .pump-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; }
+        
+        .pump-btn { background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 12px 5px; font-size: 12px; font-weight: bold; color: #475569; cursor: pointer; transition: 0.2s; text-align: center; }
+        .pump-btn:hover { background: #e2e8f0; }
+        .pump-btn.active { border-color: var(--primary-color); background: #fef2f2; color: var(--primary-color); }
+        .pump-btn.completed { background: #dcfce7; border-color: var(--success); color: #166534; }
+
+        /* Formulario Dinámico Activo */
+        #dynamic-form-container { display: none; background: #fff; border: 2px solid var(--primary-color); border-radius: 12px; padding: 15px; margin-top: 20px; box-shadow: 0 4px 15px rgba(211,47,47,0.15);}
+        .form-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; margin-bottom: 15px;}
+        .form-header h3 { margin: 0; color: var(--primary-color); font-size: 16px;}
+        .close-btn { background: #f1f5f9; border: none; padding: 5px 10px; border-radius: 6px; font-weight: bold; cursor: pointer;}
+        
+        .form-img-container { text-align: center; margin-bottom: 15px; background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 8px; padding: 10px; }
+        .form-img-container img { max-height: 140px; max-width: 100%; object-fit: contain; }
+
+        .form-row { display: flex; flex-direction: column; margin-bottom: 12px;}
+        .form-row label { font-size: 13px; font-weight: bold; color: #334155; margin-bottom: 4px;}
+        .form-row input, .form-row select, .form-row textarea { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; background: #f8fafc; outline: none; font-weight: bold; font-family: inherit; box-sizing: border-box;}
+        .form-row input:focus, .form-row select:focus, .form-row textarea:focus { border-color: var(--primary-color); background: #fff;}
+
+        .action-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: white; display: flex; justify-content: space-between; padding: 12px; box-sizing: border-box; z-index: 1000; border-top: 1px solid #e2e8f0; }
+        .btn { flex: 1; background-color: var(--primary-color); color: white; border: none; padding: 12px 5px; font-size: 13px; font-weight: bold; border-radius: 6px; margin: 0 5px; cursor: pointer;}
+        .btn-secondary { background-color: #64748b; }
+        .btn-back { background-color: #f1f5f9; color: #333; border: 1px solid #cbd5e1; flex: 0.4; display: flex; align-items: center; justify-content: center; text-decoration: none;}
+
+        /* ================= ÁREA DE IMPRESIÓN PDF ================= */
+        #print-area { display: none; }
+
+        @media print {
+            /* Formato Vertical para tabla de filas */
+            @page { size: 210mm 297mm !important; margin: 10mm; }
+            body { background-color: white; padding: 0; margin: 0; }
+            #app-area, .action-bar { display: none !important; }
+            #print-area { display: block !important; padding: 0; max-width: 100%; width: 100%; }
+            
+            .header-table { display: table; width: 100%; margin-bottom: 15px; border-collapse: collapse; }
+            .header-table td { border: 1px solid #000; padding: 6px; }
+            
+            .print-info-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; border: 1px solid #000; padding: 8px; margin-bottom: 15px;}
+            .print-info-field { font-size: 11px; }
+            .print-info-field span { font-weight: bold; margin-right: 5px; color: black;}
+            .print-info-field u { text-decoration: none; border-bottom: 1px solid #000; display: inline-block; width: 60%; color: black;} 
+            
+            .print-img-box { text-align: center; border: 1px solid #000; border-bottom: none; padding: 5px; }
+            .print-img-box img { max-height: 120px; max-width: 100%; object-fit: contain; }
+
+            .print-bloque { margin-bottom: 20px; page-break-inside: avoid; border: 1px solid #000;}
+            .print-bloque h4 { background: #e0e0e0 !important; color: black !important; margin: 0; padding: 5px; border-bottom: 1px solid #000; font-size: 12px; text-align: center;}
+            
+            .inspection-table { border-collapse: collapse; width: 100%; border-bottom: none;}
+            /* Encabezados y celdas del PDF */
+            .inspection-table th { border: 1px solid #000 !important; padding: 4px !important; font-size: 9px; color: black; text-align: center; background: #e2e8f0 !important; font-weight: bold;}
+            .inspection-table td { border: 1px solid #000 !important; padding: 4px !important; font-size: 9px; color: black; text-align: center;}
+            .param-label { text-align: left !important; font-weight: bold; background: #f8fafc !important; font-size: 10px;}
+            
+            .print-obs-bloque { border-top: 1px solid #000; padding: 5px 8px; font-size: 10px; color: black; background: #fdfdfd !important; text-align: left;}
+            .print-obs-item { margin-bottom: 3px; }
+            .print-obs-item strong { color: #d32f2f !important; }
+
+            /* Colores Automáticos PDF */
+            .estado-c { background-color: #dcfce7 !important; font-weight: bold; color: #166534 !important;} 
+            .estado-rs { background-color: #fef08a !important; font-weight: bold; color: #854d0e !important;} 
+            .estado-nc { background-color: #fee2e2 !important; font-weight: bold; color: #991b1b !important;} 
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+
+            .signatures-container { display: flex; justify-content: space-around; margin-top: 30px; }
+            .signature-block { text-align: center; width: 200px; }
+            .signature-line { border-top: 1px solid #000; margin-bottom: 4px; }
+            .signature-title { font-size: 10px; font-weight: bold; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="app-area">
+    <div class="action-bar">
+        <a href="index.html" class="btn btn-back">⬅️</a>
+        <button class="btn btn-secondary" onclick="limpiarTodo()">Limpiar</button>
+        <button class="btn" onclick="generarPDFNativo()">🖨️ Crear PDF</button>
+    </div>
+
+    <div class="app-card header-mobile">
+        <h1>Metso</h1>
+        <p>Inspección Celdas de Flotación 3110</p>
+    </div>
+
+    <div class="app-card">
+        <div class="info-grid">
+            <div class="info-field"><label>INSPECCIONADO POR:</label><input type="text" id="g_inspector"></div>
+            <div class="info-field"><label>GUARDIA / TURNO:</label><input type="text" id="g_turno"></div>
+            <div class="info-field"><label>FECHA:</label><input type="date" id="g_fecha"></div>
+        </div>
+    </div>
+
+    <div class="app-card">
+        <p style="font-size:13px; color:#475569; margin-top:0;"><strong>Instrucciones:</strong> Toca el TAG de la Celda para inspeccionarla. Solo las que llenes aparecerán en el PDF final.</p>
+        
+        <div class="pump-section-title">CELDAS DE FLOTACIÓN (3310-FT)</div>
+        <div class="pump-grid" id="grid-celdas"></div>
+
+        <div id="dynamic-form-container">
+            <div class="form-header">
+                <h3 id="form-title">TAG</h3>
+                <button class="close-btn" onclick="cerrarFormulario()">X Cerrar</button>
+            </div>
+            
+            <div class="form-img-container" id="form-image-wrapper">
+                <img src="celdas.png" alt="Celda de Flotación">
+                <br><span style="font-size:11px; color:#64748b;">Imagen referencial del equipo </span>
+            </div>
+
+            <div class="form-row">
+                <label>Temperatura (°C) | <span style="font-weight:normal; font-size:11px;">Rango Verde: 15-90</span></label>
+                <input type="number" id="f_temp" step="0.1" onchange="guardarDato('temp', this.value)">
+            </div>
+            <div class="form-row">
+                <label>Presión (BAR) | <span style="font-weight:normal; font-size:11px;">Rango Verde: 0.5-4</span></label>
+                <input type="number" id="f_pres" step="0.1" onchange="guardarDato('pres', this.value)">
+            </div>
+            
+            <div class="form-section-label">CONDICIONES VISUALES (C / RS / NC)</div>
+
+            <div class="form-row">
+                <label>Filtro Desecante</label>
+                <select id="f_f1" onchange="guardarDato('f1', this.value)">
+                    <option value=""></option><option value="C">C - Conforme</option><option value="RS">RS - Seguimiento</option><option value="NC">NC - No Conforme</option>
+                </select>
+            </div>
+            <div class="form-row">
+                <label>Saturación Filtro</label>
+                <select id="f_f2" onchange="guardarDato('f2', this.value)">
+                    <option value=""></option><option value="C">C - Conforme</option><option value="RS">RS - Seguimiento</option><option value="NC">NC - No Conforme</option>
+                </select>
+            </div>
+            <div class="form-row">
+                <label>Sentido Giro Eje</label>
+                <select id="f_giro" onchange="guardarDato('giro', this.value)">
+                    <option value=""></option><option value="C">C - Conforme</option><option value="RS">RS - Seguimiento</option><option value="NC">NC - No Conforme</option>
+                </select>
+            </div>
+            <div class="form-row">
+                <label>Insp. Eje Dardo y Actuador</label>
+                <select id="f_insp" onchange="guardarDato('insp', this.value)">
+                    <option value=""></option><option value="C">C - Conforme</option><option value="RS">RS - Seguimiento</option><option value="NC">NC - No Conforme</option>
+                </select>
+            </div>
+
+            <div class="form-row" style="margin-top: 10px;">
+                <label>Observaciones de esta Celda:</label>
+                <textarea id="f_obs" onchange="guardarDato('obs', this.value)" rows="2"></textarea>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="print-area">
+    <table class="header-table">
+        <tr>
+            <td style="width: 20%; text-align: center; font-size: 20px; font-weight: bold; color: #d32f2f;">Metso</td>
+            <td style="width: 60%; text-align: center;"><h1 style="margin: 0; font-size: 14px;">CHECK LIST DE INSPECCION DE<br>CELDAS DE FLOTACION</h1></td>
+            <td style="width: 20%; font-size: 10px; line-height: 1.4;"><strong>Código:</strong><br><strong>Versión:</strong> 00<br><strong>Fecha:</strong> 31/07/2025</td>
+        </tr>
+    </table>
+
+    <div class="print-info-grid">
+        <div class="print-info-field"><span>INSPECCIONADO POR:</span> <u id="p_inspector"></u></div>
+        <div class="print-info-field"><span>GUARDIA / TURNO:</span> <u id="p_turno"></u></div>
+        <div class="print-info-field"><span>FECHA:</span> <u id="p_fecha"></u></div>
+    </div>
+
+    <div class="print-img-box">
+        <img src="celdas.png" alt="Celdas Referencia">
+    </div>
+
+    <div class="print-bloque" style="border-top: none;">
+        <table class="inspection-table">
+            <thead>
+                <tr>
+                    <th class="param-label" style="text-align: center !important;">TAG EQUIPO</th>
+                    <th>TEMP. (°C)<br><span style="font-weight:normal;">(LL=10, L=15, H=90, HH=100)</span></th>
+                    <th>PRESIÓN<br><span style="font-weight:normal;">(0.5 - 4) BAR</span></th>
+                    <th>FILTRO<br>DESECANTE</th>
+                    <th>SATURACIÓN<br>FILTRO</th>
+                    <th>SENTIDO<br>GIRO EJE</th>
+                    <th>INSP. EJE DARDO<br>Y ACTUADOR</th>
+                </tr>
+            </thead>
+            <tbody id="print-tbody">
+                </tbody>
+        </table>
+        
+        <div id="print-obs-container"></div>
+    </div>
+
+    <div class="signatures-container">
+        <div class="signature-block"><div class="signature-line"></div><div class="signature-title">SUPERVISOR METSO</div></div>
+        <div class="signature-block"><div class="signature-line"></div><div class="signature-title">SUPERVISOR AAQ</div></div>
+    </div>
+</div>
+
+<script>
+    let baseDatos = {}; 
+    let celdaActual = null;
+
+    // Generar lista de Celdas según PDF Original (Son 46 tags en total)
+    const celdasTags = [
+        '3310-FT-0001','3310-FT-0002','3310-FT-0003','3310-FT-0004','3310-FT-0005','3310-FT-0006','3310-FT-0007','3310-FT-0008',
+        '3310-FT-0011','3310-FT-0012','3310-FT-0013','3310-FT-0014','3310-FT-0015','3310-FT-0016','3310-FT-0017','3310-FT-0018',
+        '3310-FT-0021','3310-FT-0022','3310-FT-0023','3310-FT-0024','3310-FT-0025','3310-FT-0026','3310-FT-0027','3310-FT-0028',
+        '3310-FT-0031','3310-FT-0032','3310-FT-0033','3310-FT-0034','3310-FT-0035','3310-FT-0036','3310-FT-0037','3310-FT-0038',
+        '3310-FT-0047','3310-FT-0048','3310-FT-0049','3310-FT-0051','3310-FT-0052','3310-FT-0053','3310-FT-0059','3310-FT-0060',
+        '3310-FT-0061','3310-FT-0062','3310-FT-0064','3310-FT-0065','3310-FT-0066','3310-FT-0067'
+    ];
+
+    window.onload = function() {
+        const grid = document.getElementById('grid-celdas');
+        celdasTags.forEach(tag => {
+            const btn = document.createElement('button');
+            btn.className = 'pump-btn';
+            btn.id = `btn-${tag}`;
+            // Mostrar solo los últimos 4 números en el botón para ahorrar espacio
+            btn.innerText = tag.split('-')[2]; 
+            btn.onclick = () => abrirFormulario(tag);
+            grid.appendChild(btn);
+        });
+    };
+
+    function abrirFormulario(tag) {
+        celdaActual = tag;
+
+        document.querySelectorAll('.pump-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(`btn-${tag}`).classList.add('active');
+        document.getElementById('form-title').innerText = "Celda: " + tag;
+
+        // Cargar datos previos si existen
+        let d = baseDatos[tag] || {};
+        document.getElementById('f_temp').value = d.temp || '';
+        document.getElementById('f_pres').value = d.pres || '';
+        document.getElementById('f_f1').value = d.f1 || '';
+        document.getElementById('f_f2').value = d.f2 || '';
+        document.getElementById('f_giro').value = d.giro || '';
+        document.getElementById('f_insp').value = d.insp || '';
+        document.getElementById('f_obs').value = d.obs || '';
+
+        document.getElementById('dynamic-form-container').style.display = 'block';
+    }
+
+    function guardarDato(idCampo, valor) {
+        if (!baseDatos[celdaActual]) baseDatos[celdaActual] = {};
+        baseDatos[celdaActual][idCampo] = valor;
+        validarCompletado();
+    }
+
+    function validarCompletado() {
+        const d = baseDatos[celdaActual];
+        let tieneDato = (d.temp || d.pres || d.f1 || d.f2 || d.giro || d.insp || d.obs);
+        
+        if (tieneDato) {
+            document.getElementById(`btn-${celdaActual}`).classList.add('completed');
+        } else {
+            document.getElementById(`btn-${celdaActual}`).classList.remove('completed');
+        }
+    }
+
+    function cerrarFormulario() {
+        document.getElementById('dynamic-form-container').style.display = 'none';
+        document.querySelectorAll('.pump-btn').forEach(b => b.classList.remove('active'));
+    }
+
+    // Funciones Matemáticas de Color
+    function colorTemp(val) {
+        if(!val) return '';
+        let v = parseFloat(val);
+        if(v < 10 || v > 100) return 'estado-nc'; // Rojo
+        if(v < 15 || v > 90) return 'estado-rs';  // Amarillo
+        return 'estado-c'; // Verde (Normal: 15-90)
+    }
+
+    function colorPres(val) {
+        if(!val) return '';
+        let v = parseFloat(val);
+        if(v >= 0.5 && v <= 4) return 'estado-c'; // Verde
+        return 'estado-nc'; // Rojo (Fuera de rango)
+    }
+
+    function colorSel(val) {
+        return val === 'C' ? 'estado-c' : (val === 'RS' ? 'estado-rs' : (val === 'NC' ? 'estado-nc' : ''));
+    }
+
+    function generarPDFNativo() {
+        // Encontrar celdas que tengan al menos 1 dato llenado
+        let llenadas = celdasTags.filter(tag => baseDatos[tag] && Object.values(baseDatos[tag]).some(v => v !== ''));
+
+        if (llenadas.length === 0) {
+            alert("⚠️ No has inspeccionado ninguna celda. Toca un número para empezar.");
+            return;
+        }
+
+        let fecha = document.getElementById('g_fecha').value || new Date().toISOString().split('T')[0];
+        document.getElementById('p_inspector').innerText = document.getElementById('g_inspector').value;
+        document.getElementById('p_turno').innerText = document.getElementById('g_turno').value;
+        document.getElementById('p_fecha').innerText = fecha;
+
+        let htmlFilas = '';
+        let obsHTML = '';
+
+        llenadas.forEach(tag => {
+            let d = baseDatos[tag];
+            htmlFilas += `<tr>
+                <td class="param-label">${tag}</td>
+                <td class="${colorTemp(d.temp)}">${d.temp || ''}</td>
+                <td class="${colorPres(d.pres)}">${d.pres || ''}</td>
+                <td class="${colorSel(d.f1)}">${d.f1 || ''}</td>
+                <td class="${colorSel(d.f2)}">${d.f2 || ''}</td>
+                <td class="${colorSel(d.giro)}">${d.giro || ''}</td>
+                <td class="${colorSel(d.insp)}">${d.insp || ''}</td>
+            </tr>`;
+
+            if(d.obs && d.obs.trim() !== '') {
+                obsHTML += `<div class="print-obs-item"><strong>${tag}:</strong> ${d.obs}</div>`;
+            }
+        });
+
+        document.getElementById('print-tbody').innerHTML = htmlFilas;
+
+        if (obsHTML !== '') {
+            document.getElementById('print-obs-container').innerHTML = `<div class="print-obs-bloque"><strong>OBSERVACIONES:</strong><br>${obsHTML}</div>`;
+        } else {
+            document.getElementById('print-obs-container').innerHTML = '';
+        }
+
+        document.title = "Checklist_Celdas_Flotacion_" + fecha;
+        window.print();
+        document.title = "Inspección Celdas Flotación 3110";
+    }
+
+    function limpiarTodo() {
+        if (confirm("¿Borrar todos los datos ingresados hoy?")) {
+            baseDatos = {};
+            document.querySelectorAll('input, textarea, select').forEach(i => i.value = '');
+            document.querySelectorAll('.pump-btn').forEach(b => {
+                b.classList.remove('active', 'completed');
+            });
+            cerrarFormulario();
+        }
+    }
+</script>
+
+</body>
+</html>

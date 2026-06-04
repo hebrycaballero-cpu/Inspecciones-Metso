@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inspección Espesadores 3710</title>
+    <style>
+        :root { --primary-color: #d32f2f; --dark-bg: #1e293b; --light-bg: #f1f5f9; --border-color: #cbd5e1; --success: #22c55e;}
+        body { font-family: 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 0; background-color: var(--light-bg); color: #333; }
+        #app-area { max-width: 900px; margin: 0 auto; padding: 15px; padding-bottom: 80px; }
+        .app-card { background: #ffffff; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; }
+        .header-mobile { text-align: center; margin-bottom: 10px; }
+        .header-mobile h1 { font-size: 18px; color: var(--dark-bg); margin: 0 0 5px 0; }
+        .header-mobile p { font-size: 13px; color: #64748b; margin: 0; }
+        
+        .info-grid { display: grid; grid-template-columns: 1fr; gap: 15px; }
+        @media(min-width: 600px) { .info-grid { grid-template-columns: repeat(3, 1fr); gap: 20px; } }
+        .info-field { display: flex; flex-direction: column; gap: 6px; justify-content: flex-end; }
+        .info-field label { font-size: 12px; font-weight: 700; color: #475569; }
+        .info-field input { width: 100%; height: 42px; border: 1px solid var(--border-color); border-radius: 6px; padding: 0 12px; font-size: 14px; box-sizing: border-box; font-weight:bold; font-family:inherit;}
+        .info-field input:focus { border-color: var(--primary-color); outline: none;}
+        
+        .tech-card-title { font-size: 14px; color: var(--dark-bg); border-bottom: 2px solid var(--border-color); padding-bottom: 5px; margin-top: 0; margin-bottom: 10px; font-weight: bold;}
+        .tech-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 11px; color: #334155;}
+        
+        .pump-section-title { font-size: 14px; color: white; background: var(--dark-bg); padding: 8px 12px; margin-top: 20px; margin-bottom: 10px; border-radius: 6px; font-weight: bold;}
+        .pump-grid { display: flex; flex-wrap: wrap; gap: 10px; }
+        .pump-btn { background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 12px 10px; font-size: 13px; font-weight: bold; color: #475569; cursor: pointer; flex: 1; text-align: center; transition: 0.2s;}
+        .pump-btn.active { border-color: var(--primary-color); background: #fef2f2; color: var(--primary-color); }
+        .pump-btn.completed { background: #dcfce7; border-color: var(--success); color: #166534; }
+        
+        #dynamic-form-container { display: none; background: #fff; border: 2px solid var(--primary-color); border-radius: 12px; padding: 15px; margin-top: 20px;}
+        .form-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; margin-bottom: 15px;}
+        .close-btn { background: #f1f5f9; border: none; padding: 5px 10px; border-radius: 6px; font-weight: bold; cursor: pointer;}
+        
+        .form-img-container { text-align: center; margin-bottom: 15px; background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 8px; padding: 10px; }
+        .form-img-container img { max-height: 140px; max-width: 100%; object-fit: contain; }
+
+        .form-row { display: flex; flex-direction: column; margin-bottom: 12px;}
+        .form-row label { font-size: 13px; font-weight: bold; color: #334155; margin-bottom: 4px;}
+        .form-row input, .form-row select, .form-row textarea { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; background: #f8fafc; box-sizing: border-box; font-family: inherit; font-weight: bold;}
+        .form-row input:focus, .form-row select:focus, .form-row textarea:focus { border-color: var(--primary-color); outline: none; background: #fff;}
+        .form-section-label { background: #e2e8f0; padding: 5px 10px; font-size: 12px; font-weight: bold; color: #0f172a; margin: 15px 0 10px 0; border-radius: 4px;}
+        
+        .action-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: white; display: flex; justify-content: space-between; padding: 12px; box-sizing: border-box; border-top: 1px solid #e2e8f0; z-index: 1000;}
+        .btn { flex: 1; background-color: var(--primary-color); color: white; border: none; padding: 12px 5px; font-size: 13px; font-weight: bold; border-radius: 6px; margin: 0 5px; cursor: pointer;}
+        .btn-secondary { background-color: #64748b; }
+        .btn-back { background-color: #f1f5f9; color: #333; border: 1px solid #cbd5e1; flex: 0.4; display: flex; align-items: center; justify-content: center; text-decoration: none;}
+        
+        #print-area { display: none; }
+        
+        /* ================= ÁREA DE IMPRESIÓN (CLON DEL ORIGINAL) ================= */
+        @media print {
+            @page { size: 297mm 210mm !important; margin: 8mm; }
+            body { background-color: white; padding: 0; margin: 0; font-family: Arial, Helvetica, sans-serif; }
+            #app-area, .action-bar { display: none !important; }
+            #print-area { display: block !important; padding: 0; width: 100%; }
+            
+            /* Bordes gruesos exteriores */
+            .print-wrapper { border: 3px solid #000; padding: 2px; }
+
+            /* Cabecera Principal */
+            .header-table { width: 100%; border-collapse: collapse; margin-bottom: 5px; border: 2px solid #000; }
+            .header-table td { border: 1px solid #000; padding: 4px; }
+            .ht-logo { width: 20%; text-align: center; font-size: 22px; font-weight: bold; color: #000;}
+            .ht-title { width: 60%; text-align: center; font-size: 12px; font-weight: bold;}
+            .ht-codes { width: 20%; font-size: 7px; line-height: 1.5; padding-left: 5px !important;}
+            .ht-fecha { display: flex; align-items: center; justify-content: flex-start; font-size: 9px; font-weight: bold;}
+            .ht-fecha u { flex-grow: 1; border-bottom: 1px solid #000; text-decoration: none; margin-left: 5px; text-align: center;}
+
+            .print-info-grid { display: flex; justify-content: space-between; font-size: 9px; font-weight: bold; margin-bottom: 5px; padding: 0 5px;}
+            .print-info-grid u { text-decoration: none; border-bottom: 1px solid #000; display: inline-block; width: 150px; text-align: center; font-weight: normal;}
+
+            /* Contenedor Medio: Datos y Foto */
+            .middle-container { display: flex; gap: 5px; margin-bottom: 5px; }
+            
+            /* Tabla Datos Técnicos */
+            .tech-table { width: 45%; border-collapse: collapse; border: 2px solid #000; font-size: 8px;}
+            .tech-table th { background-color: #000080 !important; color: white !important; font-weight: bold; text-align: center; padding: 4px; font-size: 9px; border: 1px solid #000;}
+            .tech-table td { border: 1px solid #cbd5e1; padding: 3px 5px; font-weight: bold; }
+            .tech-table tr:nth-child(even) td { background-color: #e2e8f0 !important; }
+            .tech-table tr:nth-child(odd) td { background-color: #f8fafc !important; }
+            .tech-table td:first-child { color: #0f172a; }
+            .tech-table td:last-child { color: #475569; }
+
+            /* Imagen Referencial */
+            .img-box { width: 55%; border: 2px solid #000; text-align: center; display: flex; align-items: center; justify-content: center; padding: 2px;}
+            .img-box img { max-height: 180px; max-width: 100%; object-fit: contain; }
+
+            /* Tabla de Inspección Principal */
+            .insp-table { width: 100%; border-collapse: collapse; border: 2px solid #000; font-size: 7px; text-align: center; margin-bottom: 10px;}
+            .insp-table th, .insp-table td { border: 1px solid #000; padding: 3px 1px; }
+            .insp-table th { background-color: #d1d5db !important; font-weight: bold; }
+            .bg-grey { background-color: #e5e7eb !important; font-weight: bold;}
+            .bg-light-grey { background-color: #f3f4f6 !important;}
+            
+            .col-tag { width: 4%; }
+            .col-torque { width: 4%; }
+            .col-giro-lev { width: 5%; }
+            .col-motor { width: 6%; }
+
+            /* Colores de Evaluación PDF */
+            .estado-c { background-color: #dcfce7 !important; font-weight: bold; color: #000 !important;} 
+            .estado-nc { background-color: #fee2e2 !important; font-weight: bold; color: #000 !important;} 
+            
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            
+            .signatures-container { display: flex; justify-content: space-around; margin-top: 15px; padding-bottom: 10px;}
+            .signature-block { text-align: center; width: 180px; font-size: 9px; font-weight: bold; border-top: 1px solid #000; padding-top: 4px;}
+        }
+    </style>
+</head>
+<body>
+<div id="app-area">
+    <div class="action-bar">
+        <a href="index.html" class="btn btn-back">⬅️</a>
+        <button class="btn btn-secondary" onclick="limpiarTodo()">Limpiar</button>
+        <button class="btn" onclick="generarPDFNativo()">🖨️ Crear PDF</button>
+    </div>
+
+    <div class="app-card header-mobile">
+        <h1>Metso</h1><p>Espesadores de Relaves 3710</p>
+    </div>
+
+    <div class="app-card">
+        <div class="info-grid">
+            <div class="info-field"><label>INSPECCIONADO POR:</label><input type="text" id="g_inspector" value=></div>
+            <div class="info-field"><label>GUARDIA / TURNO:</label><input type="text" id="g_turno"></div>
+            <div class="info-field"><label>FECHA:</label><input type="date" id="g_fecha"></div>
+        </div>
+    </div>
+
+    <div class="app-card" style="background-color: #f1f5f9;">
+        <h3 class="tech-card-title">Datos Técnicos Generales</h3>
+        <div class="tech-grid">
+            <div><strong>Fabricante:</strong> FLSMIDTH</div><div><strong>Modelo:</strong> C120P-6</div>
+            <div><strong>Diámetro:</strong> 120 m</div><div><strong>Altura:</strong> 3.040 m</div>
+            <div><strong>Potencia motor:</strong> 37.5 KW</div><div><strong>Velocidad rastra:</strong> 0.03 rpm</div>
+            <div><strong>Torque máximo:</strong> 40%</div><div><strong>Flujo nominal:</strong> 3,793 m³/h</div>
+            <div><strong>Sólidos:</strong> 60%</div><div><strong>Motores:</strong> 6 motores</div>
+        </div>
+    </div>
+
+    <div class="app-card">
+        <p style="font-size:13px; margin-top:0;">Selecciona el Espesador:</p>
+        <div class="pump-grid" id="grid-espesadores"></div>
+        
+        <div id="dynamic-form-container">
+            <div class="form-header"><h3 id="form-title">TAG</h3><button class="close-btn" onclick="cerrarFormulario()">X Cerrar</button></div>
+            
+            <div class="form-img-container">
+                <img src="espesador.png" alt="Espesador de Relaves">
+                <br><span style="font-size:11px; color:#64748b;">Imagen Referencial</span>
+            </div>
+
+            <div id="form-fields"></div>
+        </div>
+    </div>
+</div>
+
+<div id="print-area">
+    <div class="print-wrapper">
+        <table class="header-table">
+            <tr>
+                <td class="ht-logo">Metso</td>
+                <td rowspan="2" class="ht-title">CHECK LIST DE INSPECCION - ESPESADORES DE RELAVES 3710</td>
+                <td rowspan="2" class="ht-codes">Codigo:<br>Version: 00<br>Fecha: 31/07/2025</td>
+            </tr>
+            <tr>
+                <td>
+                    <div class="ht-fecha">FECHA: <u id="p_fecha"></u></div>
+                </td>
+            </tr>
+        </table>
+        
+        <div class="print-info-grid">
+            <div>INSPECCIONADO POR: <u id="p_inspector"></u></div>
+            <div>GUARDIA/TURNO: <u id="p_turno"></u></div>
+        </div>
+        
+        <div class="middle-container">
+            <table class="tech-table">
+                <tr><th colspan="2">DATOS TÉCNICOS GENERALES</th></tr>
+                <tr><td>Tag Espesador de relaves</td><td>3710-TH-001/002</td></tr>
+                <tr><td>Fabricante</td><td>FLSMIDTH</td></tr>
+                <tr><td>Modelo</td><td>C120P-6</td></tr>
+                <tr><td>Diámetro</td><td>120 m</td></tr>
+                <tr><td>Altura</td><td>3.040 m</td></tr>
+                <tr><td>Potencia motor</td><td>37.5 KW</td></tr>
+                <tr><td>Velocidad rastra</td><td>0.03 rpm</td></tr>
+                <tr><td>Torque máximo de operación</td><td>40%</td></tr>
+                <tr><td>Flujo nominal underflow</td><td>3,793 m³/h</td></tr>
+                <tr><td>Porcentaje de sólidos</td><td>60%</td></tr>
+                <tr><td>Motores de accionamiento</td><td>6 motores</td></tr>
+                <tr><td>Puntos de descarga</td><td>4</td></tr>
+            </table>
+            
+            <div class="img-box">
+                <img src="espesador.png" alt="Plano Espesador">
+            </div>
+        </div>
+
+        <div id="print-tables-container">
+            </div>
+        
+        <div class="signatures-container">
+            <div class="signature-block">SUPERVISOR METSO</div>
+            <div class="signature-block">SUPERVISOR AAQ</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let baseDatos = {}; let equipoActual = null;
+    const tags = ['3710-TH-001', '3710-TH-002'];
+    
+    const config = [
+        { id: 'torque', label: 'TORQUE (%)', type: 'number', eval: 'none' },
+        { isSection: true, label: 'SISTEMA DE GIRO' },
+        { id: 'n_giro', label: 'NIVEL DE ACEITE (%)', type: 'number', eval: 'none' },
+        { id: 't_giro', label: 'TEMPERATURA TANQUE (°C)', type: 'number', eval: 'temp' },
+        { isSection: true, label: 'SISTEMA DE LEVANTE' },
+        { id: 'n_lev', label: 'NIVEL DE ACEITE (%)', type: 'number', eval: 'none' },
+        { id: 't_lev', label: 'TEMPERATURA TANQUE (°C)', type: 'number', eval: 'temp' },
+        { isSection: true, label: 'ESTADO GENERAL' },
+        { id: 'fugas', label: 'FUGAS Y DERRAMES (SI/NO)', type: 'select_sino', eval: 'none' }
+    ];
+    
+    for (let i=1; i<=6; i++) {
+        config.push({ isSection: true, label: `MOTOR & REDUCTOR ${i}` });
+        config.push({ id: `n_m${i}`, label: `NIVEL DE ACEITE (%)`, type: 'number', eval: 'none' });
+        config.push({ id: `t_m${i}`, label: `TEMPERATURA MOTOR (°C)`, type: 'number', eval: 'temp' });
+    }
+    config.push({ id: 'obs', label: 'OBSERVACIONES', type: 'textarea', eval: 'none' });
+
+    window.onload = () => {
+        const grid = document.getElementById('grid-espesadores');
+        tags.forEach(t => {
+            const btn = document.createElement('button'); btn.className='pump-btn'; btn.id=`btn-${t}`; btn.innerText=t;
+            btn.onclick = () => abrirFormulario(t); grid.appendChild(btn);
+        });
+    };
+
+    function abrirFormulario(tag) {
+        equipoActual = tag;
+        document.querySelectorAll('.pump-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(`btn-${tag}`).classList.add('active');
+        document.getElementById('form-title').innerText = tag;
+        
+        const cont = document.getElementById('form-fields'); cont.innerHTML = '';
+        let d = baseDatos[tag] || {};
+
+        config.forEach(c => {
+            if (c.isSection) { cont.innerHTML += `<div class="form-section-label">${c.label}</div>`; return; }
+            let val = d[c.id] || ''; let input = '';
+            
+            if (c.type === 'number') input = `<input type="number" step="0.1" value="${val}" onchange="guardar('${c.id}', this.value)">`;
+            if (c.type === 'textarea') input = `<textarea rows="2" onchange="guardar('${c.id}', this.value)">${val}</textarea>`;
+            if (c.type === 'select_sino') input = `<select onchange="guardar('${c.id}', this.value)"><option value=""></option><option value="NO">NO (Sin fugas)</option><option value="SI">SI (Fuga)</option></select>`;
+            
+            cont.innerHTML += `<div class="form-row"><label>${c.label}</label>${input}</div>`;
+        });
+        document.getElementById('dynamic-form-container').style.display = 'block';
+    }
+
+    function guardar(id, val) {
+        if(!baseDatos[equipoActual]) baseDatos[equipoActual]={}; baseDatos[equipoActual][id]=val;
+        document.getElementById(`btn-${equipoActual}`).classList.add('completed');
+    }
+    
+    function cerrarFormulario() { document.getElementById('dynamic-form-container').style.display = 'none'; document.querySelectorAll('.pump-btn').forEach(b => b.classList.remove('active')); }
+    
+    function evaluarColor(val, regla) {
+        if(!val) return '';
+        if(regla === 'temp') return parseFloat(val) <= 75 ? 'estado-c' : 'estado-nc';
+        return '';
+    }
+
+    function generarPDFNativo() {
+        let llenos = tags.filter(t => baseDatos[t]);
+        if(llenos.length===0) return alert("⚠️ Llena un equipo primero.");
+        
+        let fecha = document.getElementById('g_fecha').value || new Date().toISOString().split('T')[0];
+        document.getElementById('p_inspector').innerText = document.getElementById('g_inspector').value;
+        document.getElementById('p_turno').innerText = document.getElementById('g_turno').value;
+        document.getElementById('p_fecha').innerText = fecha;
+
+        let htmlContainer = '';
+        
+        llenos.forEach(t => {
+            let d = baseDatos[t] || {};
+            
+            htmlContainer += `
+            <table class="insp-table">
+                <thead>
+                    <tr>
+                        <th rowspan="2" class="col-tag">TAG</th>
+                        <th rowspan="2" class="col-torque">TORQUE</th>
+                        <th rowspan="2" class="col-giro-lev">NIVEL DE ACEITE DE<br>SISTEMA DE GIRO</th>
+                        <th rowspan="2" class="col-giro-lev">TEMPERATURA<br>TANQUE SISTEMA<br>DE GIRO</th>
+                        <th rowspan="2" class="col-giro-lev">NIVEL DE ACEITE<br>DE SISTEMA DE<br>LEVANTE</th>
+                        <th rowspan="2" class="col-giro-lev">TEMPERATURA<br>TANQUE SISTEMA<br>DE LEVANTE</th>
+                        <th colspan="2" class="col-motor">MOTOR & REDUCTOR 1</th>
+                        <th colspan="2" class="col-motor">MOTOR & REDUCTOR 2</th>
+                        <th colspan="2" class="col-motor">MOTOR & REDUCTOR 3</th>
+                        <th colspan="2" class="col-motor">MOTOR & REDUCTOR 4</th>
+                        <th colspan="2" class="col-motor">MOTOR & REDUCTOR 5</th>
+                        <th colspan="2" class="col-motor">MOTOR & REDUCTOR 6</th>
+                    </tr>
+                    <tr>
+                        <th>NIVEL DE<br>ACEITE</th><th>TEMPERATURA<br>MOTOR</th>
+                        <th>NIVEL DE<br>ACEITE</th><th>TEMPERATURA<br>MOTOR</th>
+                        <th>NIVEL DE<br>ACEITE</th><th>TEMPERATURA<br>MOTOR</th>
+                        <th>NIVEL DE<br>ACEITE</th><th>TEMPERATURA<br>MOTOR</th>
+                        <th>NIVEL DE<br>ACEITE</th><th>TEMPERATURA<br>MOTOR</th>
+                        <th>NIVEL DE<br>ACEITE</th><th>TEMPERATURA<br>MOTOR</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="bg-grey">${t}</td>
+                        <td style="font-weight:bold;">${d.torque || ''}</td>
+                        <td style="font-weight:bold;">${d.n_giro || ''}</td>
+                        <td class="${evaluarColor(d.t_giro, 'temp')}">${d.t_giro || ''}</td>
+                        <td style="font-weight:bold;">${d.n_lev || ''}</td>
+                        <td class="${evaluarColor(d.t_lev, 'temp')}">${d.t_lev || ''}</td>
+                        
+                        <td style="font-weight:bold;">${d.n_m1 || ''}</td><td class="${evaluarColor(d.t_m1, 'temp')}">${d.t_m1 || ''}</td>
+                        <td style="font-weight:bold;">${d.n_m2 || ''}</td><td class="${evaluarColor(d.t_m2, 'temp')}">${d.t_m2 || ''}</td>
+                        <td style="font-weight:bold;">${d.n_m3 || ''}</td><td class="${evaluarColor(d.t_m3, 'temp')}">${d.t_m3 || ''}</td>
+                        <td style="font-weight:bold;">${d.n_m4 || ''}</td><td class="${evaluarColor(d.t_m4, 'temp')}">${d.t_m4 || ''}</td>
+                        <td style="font-weight:bold;">${d.n_m5 || ''}</td><td class="${evaluarColor(d.t_m5, 'temp')}">${d.t_m5 || ''}</td>
+                        <td style="font-weight:bold;">${d.n_m6 || ''}</td><td class="${evaluarColor(d.t_m6, 'temp')}">${d.t_m6 || ''}</td>
+                    </tr>
+                    <tr>
+                        <td colspan="3" class="bg-grey" style="text-align: right; padding-right: 10px;">FUGAS Y DERRAMES</td>
+                        <td colspan="4" class="bg-grey" style="text-align: center; font-size: 10px; font-weight: bold;">${d.fugas || ''}</td>
+                        <td colspan="11" class="bg-light-grey"></td>
+                    </tr>
+                    <tr>
+                        <td colspan="18" class="bg-grey">OBSERVACIONES</td>
+                    </tr>
+                    <tr>
+                        <td colspan="18" style="text-align: left; vertical-align: top; height: 35px; padding: 4px; font-weight:bold; font-size:8px;">${d.obs || ''}</td>
+                    </tr>
+                </tbody>
+            </table>
+            `;
+        });
+        
+        document.getElementById('print-tables-container').innerHTML = htmlContainer;
+        document.title = "Checklist_Espesadores_3710_" + fecha;
+        window.print();
+    }
+    
+    function limpiarTodo() { if(confirm("¿Borrar todos los datos ingresados?")) { baseDatos={}; document.querySelectorAll('input, select, textarea').forEach(i=>{ if(i.id !== 'g_inspector') i.value=''; }); cerrarFormulario(); document.querySelectorAll('.pump-btn').forEach(b=>b.classList.remove('completed')); } }
+</script>
+</body>
+</html>

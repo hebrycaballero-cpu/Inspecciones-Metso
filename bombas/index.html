@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Metso - Portal de Inspecciones</title>
+    <style>
+        :root {
+            --metso-red: #cc0000;
+            --metso-dark: #1a1a1a;
+            --metso-gray: #f4f4f4;
+            --text-main: #333333;
+            --text-muted: #777777;
+            --border-light: #e0e0e0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--metso-gray);
+            color: var(--text-main);
+        }
+
+        /* Encabezado Corporativo Metso */
+        .brand-header {
+            background-color: var(--metso-dark);
+            color: white;
+            padding: 35px 20px;
+            text-align: center;
+            border-bottom: 5px solid var(--metso-red);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Estilo para el Logo en Imagen */
+        .brand-logo-img {
+            max-height: 55px;
+            width: auto;
+            margin-bottom: 15px;
+            object-fit: contain;
+        }
+
+        .brand-subtitle {
+            font-size: 14px;
+            color: #aaaaaa;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        /* Contenedor Principal */
+        .container {
+            max-width: 900px;
+            margin: -20px auto 40px auto;
+            padding: 0 20px;
+        }
+
+        /* Títulos de Sección */
+        .section-header {
+            display: flex;
+            align-items: center;
+            margin: 40px 0 20px 0;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--metso-dark);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin: 0;
+        }
+
+        .section-line {
+            flex-grow: 1;
+            height: 1px;
+            background-color: var(--border-light);
+            margin-left: 20px;
+        }
+
+        /* Grid Elegante */
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+        /* Tarjetas de Navegación */
+        .nav-card {
+            background: white;
+            border-radius: 6px;
+            padding: 25px;
+            text-decoration: none;
+            color: var(--text-main);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            border: 1px solid var(--border-light);
+            border-left: 4px solid transparent;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.3s ease;
+        }
+
+        .nav-card:hover, .nav-card:active {
+            border-left: 4px solid var(--metso-red);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+            transform: translateY(-2px);
+        }
+
+        .card-content {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--metso-dark);
+        }
+
+        .card-desc {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .card-arrow {
+            font-size: 20px;
+            color: var(--border-light);
+            transition: color 0.3s ease;
+            font-weight: bold;
+        }
+
+        .nav-card:hover .card-arrow, .nav-card:active .card-arrow {
+            color: var(--metso-red);
+        }
+
+        /* Adaptación Celular */
+        @media (max-width: 600px) {
+            .menu-grid {
+                grid-template-columns: 1fr;
+            }
+            .brand-logo-img {
+                max-height: 45px;
+            }
+            .nav-card {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="brand-header">
+        <img src="logo-metso.png" alt="Logo Metso" class="brand-logo-img">
+        <div class="brand-subtitle">Portal de Inspecciones de Mantenimiento</div>
+    </header>
+
+    <main class="container">
+        
+        <!-- ======================= SISTEMAS DE BOMBEO ======================= -->
+        <div class="section-header">
+            <h2 class="section-title">Sistemas de Bombeo</h2>
+            <div class="section-line"></div>
+        </div>
+
+        <div class="menu-grid">
+            <a href="bombas-3720.html" class="nav-card">
+                <div class="card-content">
+                    <span class="card-title">Bombas de Agua de Proceso PTAR 3720</span>
+                    <span class="card-desc">Protocolo de parámetros y condiciones visuales</span>
+                </div>
+                <div class="card-arrow">➔</div>
+            </a>
+
+            <a href="bombas-3340.html" class="nav-card">
+                <div class="card-content">
+                    <span class="card-title">Bombas Área CPF 3340</span>
+                    <span class="card-desc">Inspección de bombas Metso, Warman y KSB</span>
+                </div>
+                <div class="card-arrow">➔</div>
+            </a>
+
+            <a href="bombas-3310-3320.html" class="nav-card">
+                <div class="card-content">
+                    <span class="card-title">Bombas Flotación/Remolienda 3310 y 3320</span>
+                    <span class="card-desc">Checklist de mantenimiento preventivo</span>
+                </div>
+                <div class="card-arrow">➔</div>
+            </a>
+        </div>
+
+        <!-- ======================= PROCESOS DE PLANTA ======================= -->
+        <div class="section-header">
+            <h2 class="section-title">Procesos de Planta</h2>
+            <div class="section-line"></div>
+        </div>
+
+        <div class="menu-grid">
+            
+            <a href="ciclones.html" class="nav-card">
+                <div class="card-content">
+                    <span class="card-title">Ciclones Remolienda y CPF</span>
+                    <span class="card-desc">Checklist de inspección de componentes</span>
+                </div>
+                <div class="card-arrow">➔</div>
+            </a>
+
+            <!-- ITEM ACTUALIZADO: CELDAS DE FLOTACIÓN -->
+            <a href="flotacion.html" class="nav-card">
+                <div class="card-content">
+                    <span class="card-title">Celdas de Flotación 3310</span>
+                    <span class="card-desc">Inspección de parámetros y condiciones visuales</span>
+                </div>
+                <div class="card-arrow">➔</div>
+            </a>
+            <a href="celdas-columna.html" class="nav-card">
+                <div class="card-content">
+                    <span class="card-title">Celdas Columna Flotacion 3310 </span>
+                    <span class="card-desc">Inspección de Segunda Limpieza y Slamjet</span>
+                </div>
+                <div class="card-arrow">➔</div>
+            </a>
+            <a href="sobrealimentadores.html" class="nav-card">
+                <div class="card-content">
+                    <span class="card-title">Sobrealimentadores (Blowers)</span>
+                    <span class="card-desc">Inspección de vibración, temperatura y potencia</span>
+                </div>
+                <div class="card-arrow">➔</div>
+            </a>
+            <a href="vtm-3320.html" class="nav-card">
+                <div class="card-content">
+                    <span class="card-title">Molinos Verticales VTM 3320 Remolienda</span>
+                    <span class="card-desc">Inspección de sistemas de lubricación y temperaturas</span>
+                </div>
+                <div class="card-arrow">➔</div>
+            </a>
+            <a href="vtm-3340.html" class="nav-card">
+                <div class="card-content">
+                    <span class="card-title">Molinos Verticales VTM 3340 CPF</span>
+                    <span class="card-desc">Inspección de sistemas de lubricación y temperaturas</span>
+                </div>
+                <div class="card-arrow">➔</div>
+            </a>
+            <a href="espesadores-3710.html" class="nav-card">
+                <div class="card-content">
+                    <span class="card-title">Espesadores de Relaves 3710</span>
+                    <span class="card-desc">Inspección mecánica de motores y reductores</span>
+                </div>
+                <div class="card-arrow">➔</div>
+            </a>
+
+            <a href="valvulas-3710.html" class="nav-card">
+                <div class="card-content">
+                    <span class="card-title">Válvulas de Espesadores 3710</span>
+                    <span class="card-desc">Inspección de válvulas asociadas a los espesadores</span>
+                </div>
+                <div class="card-arrow">➔</div>
+            </a>
+
+            
+        </div>
+
+    </main>
+
+</body>
+</html>

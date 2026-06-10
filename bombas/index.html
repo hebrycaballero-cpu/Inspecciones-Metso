@@ -5,13 +5,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Metso - Portal de Inspecciones</title>
     <style>
+        /* VARIABLES ORIGINALES + AGREGADAS PARA MODO OSCURO */
         :root {
             --metso-red: #cc0000;
-            --metso-dark: #1a1a1a;
+            --header-bg: #1a1a1a;
             --metso-gray: #f4f4f4;
             --text-main: #333333;
             --text-muted: #777777;
             --border-light: #e0e0e0;
+            --card-bg: #ffffff;
+            --title-color: #1a1a1a;
+        }
+
+        /* PALETA MODO OSCURO */
+        body.dark-theme {
+            --header-bg: #020617;
+            --metso-gray: #0f172a;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-light: #334155;
+            --card-bg: #1e293b;
+            --title-color: #f8fafc;
         }
 
         body {
@@ -20,11 +34,12 @@
             padding: 0;
             background-color: var(--metso-gray);
             color: var(--text-main);
+            transition: background 0.3s, color 0.3s;
         }
 
         /* Encabezado Corporativo Metso */
         .brand-header {
-            background-color: var(--metso-dark);
+            background-color: var(--header-bg);
             color: white;
             padding: 35px 20px;
             text-align: center;
@@ -32,7 +47,25 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            position: relative; /* Agregado para posicionar el botón */
+            transition: background 0.3s;
         }
+
+        /* Botón de Tema (Luna/Sol) */
+        .theme-btn {
+            position: absolute;
+            right: 20px;
+            top: 30px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: white;
+            font-size: 20px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .theme-btn:hover { background: rgba(255,255,255,0.2); }
 
         /* Estilo para el Logo en Imagen */
         .brand-logo-img {
@@ -66,10 +99,11 @@
         .section-title {
             font-size: 18px;
             font-weight: 700;
-            color: var(--metso-dark);
+            color: var(--title-color); /* Cambiado a variable adaptable */
             text-transform: uppercase;
             letter-spacing: 0.5px;
             margin: 0;
+            transition: color 0.3s;
         }
 
         .section-line {
@@ -77,6 +111,7 @@
             height: 1px;
             background-color: var(--border-light);
             margin-left: 20px;
+            transition: background 0.3s;
         }
 
         /* Grid Elegante */
@@ -88,7 +123,7 @@
 
         /* Tarjetas de Navegación */
         .nav-card {
-            background: white;
+            background: var(--card-bg); /* Cambiado a variable adaptable */
             border-radius: 6px;
             padding: 25px;
             text-decoration: none;
@@ -107,6 +142,10 @@
             box-shadow: 0 8px 25px rgba(0,0,0,0.08);
             transform: translateY(-2px);
         }
+        /* Sombras especiales en modo oscuro */
+        body.dark-theme .nav-card:hover {
+            box-shadow: 0 8px 25px rgba(204, 0, 0, 0.15);
+        }
 
         .card-content {
             display: flex;
@@ -117,12 +156,13 @@
         .card-title {
             font-size: 16px;
             font-weight: 700;
-            color: var(--metso-dark);
+            color: var(--title-color); /* Cambiado a variable adaptable */
         }
 
         .card-desc {
             font-size: 13px;
             color: var(--text-muted);
+            transition: color 0.3s;
         }
 
         .card-arrow {
@@ -147,19 +187,28 @@
             .nav-card {
                 padding: 20px;
             }
+            .theme-btn {
+                top: 20px;
+                right: 15px;
+                padding: 5px 8px;
+                font-size: 16px;
+            }
         }
     </style>
 </head>
+<link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#d32f2f">
+    <link rel="apple-touch-icon" href="logo-metso.png">
 <body>
 
     <header class="brand-header">
+        <button class="theme-btn" onclick="toggleTheme()" id="theme-icon">🌙</button>
         <img src="logo-metso.png" alt="Logo Metso" class="brand-logo-img">
         <div class="brand-subtitle">Portal de Inspecciones de Mantenimiento</div>
     </header>
 
     <main class="container">
         
-        <!-- ======================= SISTEMAS DE BOMBEO ======================= -->
         <div class="section-header">
             <h2 class="section-title">Sistemas de Bombeo</h2>
             <div class="section-line"></div>
@@ -191,7 +240,6 @@
             </a>
         </div>
 
-        <!-- ======================= PROCESOS DE PLANTA ======================= -->
         <div class="section-header">
             <h2 class="section-title">Procesos de Planta</h2>
             <div class="section-line"></div>
@@ -207,7 +255,6 @@
                 <div class="card-arrow">➔</div>
             </a>
 
-            <!-- ITEM ACTUALIZADO: CELDAS DE FLOTACIÓN -->
             <a href="flotacion.html" class="nav-card">
                 <div class="card-content">
                     <span class="card-title">Celdas de Flotación 3310</span>
@@ -264,5 +311,34 @@
 
     </main>
 
+    <script>
+        window.onload = function() {
+            if (localStorage.getItem('theme') === 'dark') {
+                document.body.classList.add('dark-theme');
+                document.getElementById('theme-icon').innerText = "☀️";
+            }
+        };
+
+        function toggleTheme() {
+            if (document.body.classList.contains('dark-theme')) {
+                document.body.classList.remove('dark-theme');
+                localStorage.setItem('theme', 'light');
+                document.getElementById('theme-icon').innerText = "🌙";
+            } else {
+                document.body.classList.add('dark-theme');
+                localStorage.setItem('theme', 'dark');
+                document.getElementById('theme-icon').innerText = "☀️";
+            }
+        }
+    </script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(registration => console.log('ServiceWorker registrado con éxito'))
+                    .catch(error => console.log('Error al registrar el ServiceWorker', error));
+            });
+        }
+    </script>
 </body>
 </html>

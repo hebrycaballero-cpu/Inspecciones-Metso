@@ -5,92 +5,111 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inspección Espesadores 3710</title>
     <style>
-        :root { --primary-color: #d32f2f; --dark-bg: #1e293b; --light-bg: #f1f5f9; --border-color: #cbd5e1; --success: #22c55e;}
-        body { font-family: 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 0; background-color: var(--light-bg); color: #333; }
+        /* VARIABLES DE DISEÑO Y MODO OSCURO */
+        :root { 
+            --primary-color: #d32f2f; 
+            --dark-bg: #1e293b; 
+            --light-bg: #f1f5f9; 
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --text-muted: #64748b;
+            --border-color: #cbd5e1; 
+            --input-bg: #f8fafc; 
+            --success: #22c55e;
+        }
+
+        body.dark-theme {
+            --dark-bg: #020617; 
+            --light-bg: #0f172a; 
+            --card-bg: #1e293b;
+            --text-color: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #334155; 
+            --input-bg: #0f172a;
+        }
+
+        body { font-family: 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 0; background-color: var(--light-bg); color: var(--text-color); transition: background 0.3s, color 0.3s; }
         #app-area { max-width: 900px; margin: 0 auto; padding: 15px; padding-bottom: 80px; }
-        .app-card { background: #ffffff; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; }
+        .app-card { background: var(--card-bg); border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border: 1px solid var(--border-color); transition: 0.3s; }
         .header-mobile { text-align: center; margin-bottom: 10px; }
-        .header-mobile h1 { font-size: 18px; color: var(--dark-bg); margin: 0 0 5px 0; }
-        .header-mobile p { font-size: 13px; color: #64748b; margin: 0; }
+        .header-mobile h1 { font-size: 18px; color: var(--text-color); margin: 0 0 5px 0; text-transform: uppercase;}
+        .header-mobile p { font-size: 13px; color: var(--text-muted); margin: 0; }
         
         .info-grid { display: grid; grid-template-columns: 1fr; gap: 15px; }
         @media(min-width: 600px) { .info-grid { grid-template-columns: repeat(3, 1fr); gap: 20px; } }
         .info-field { display: flex; flex-direction: column; gap: 6px; justify-content: flex-end; }
-        .info-field label { font-size: 12px; font-weight: 700; color: #475569; }
-        .info-field input { width: 100%; height: 42px; border: 1px solid var(--border-color); border-radius: 6px; padding: 0 12px; font-size: 14px; box-sizing: border-box; font-weight:bold; font-family:inherit;}
+        .info-field label { font-size: 12px; font-weight: 700; color: var(--text-muted); }
+        .info-field input { width: 100%; height: 42px; border: 1px solid var(--border-color); border-radius: 6px; padding: 0 12px; font-size: 14px; box-sizing: border-box; font-weight:bold; font-family:inherit; background-color: var(--input-bg); color: var(--text-color); transition: 0.3s;}
         .info-field input:focus { border-color: var(--primary-color); outline: none;}
         
-        .tech-card-title { font-size: 14px; color: var(--dark-bg); border-bottom: 2px solid var(--border-color); padding-bottom: 5px; margin-top: 0; margin-bottom: 10px; font-weight: bold;}
-        .tech-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 11px; color: #334155;}
+        .tech-card-title { font-size: 14px; color: var(--text-color); border-bottom: 2px solid var(--border-color); padding-bottom: 5px; margin-top: 0; margin-bottom: 10px; font-weight: bold; text-transform: uppercase;}
+        .tech-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 12px; color: var(--text-muted);}
+        .tech-grid strong { color: var(--text-color); }
         
-        .pump-section-title { font-size: 14px; color: white; background: var(--dark-bg); padding: 8px 12px; margin-top: 20px; margin-bottom: 10px; border-radius: 6px; font-weight: bold;}
+        .pump-section-title { font-size: 14px; color: white; background: var(--primary-color); padding: 8px 12px; margin-top: 20px; margin-bottom: 10px; border-radius: 6px; font-weight: bold; text-transform: uppercase; box-shadow: 0 2px 5px rgba(211,47,47,0.2);}
         .pump-grid { display: flex; flex-wrap: wrap; gap: 10px; }
-        .pump-btn { background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 12px 10px; font-size: 13px; font-weight: bold; color: #475569; cursor: pointer; flex: 1; text-align: center; transition: 0.2s;}
-        .pump-btn.active { border-color: var(--primary-color); background: #fef2f2; color: var(--primary-color); }
+        .pump-btn { background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px 10px; font-size: 13px; font-weight: bold; color: var(--text-color); cursor: pointer; flex: 1; text-align: center; transition: 0.2s;}
+        .pump-btn:hover { background: var(--border-color); }
+        .pump-btn.active { border-color: var(--primary-color); background: #fef2f2; color: #b91c1c; box-shadow: 0 0 10px rgba(211,47,47,0.3);}
         .pump-btn.completed { background: #dcfce7; border-color: var(--success); color: #166534; }
+        body.dark-theme .pump-btn.completed { background: #14532d; border-color: var(--success); color: #4ade80; }
         
-        #dynamic-form-container { display: none; background: #fff; border: 2px solid var(--primary-color); border-radius: 12px; padding: 15px; margin-top: 20px;}
-        .form-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; margin-bottom: 15px;}
-        .close-btn { background: #f1f5f9; border: none; padding: 5px 10px; border-radius: 6px; font-weight: bold; cursor: pointer;}
+        #dynamic-form-container { display: none; background: var(--card-bg); border: 2px solid var(--primary-color); border-radius: 12px; padding: 15px; margin-top: 20px; box-shadow: 0 4px 15px rgba(211,47,47,0.2); transition: 0.3s;}
+        .form-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; margin-bottom: 15px;}
+        .form-header h3 { margin: 0; color: var(--primary-color); font-size: 16px;}
+        .close-btn { background: var(--border-color); border: none; padding: 5px 10px; border-radius: 6px; font-weight: bold; cursor: pointer; color: var(--text-color);}
         
-        .form-img-container { text-align: center; margin-bottom: 15px; background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 8px; padding: 10px; }
+        .form-img-container { text-align: center; margin-bottom: 15px; background: var(--input-bg); border: 1px dashed var(--border-color); border-radius: 8px; padding: 10px; transition: 0.3s;}
         .form-img-container img { max-height: 140px; max-width: 100%; object-fit: contain; }
 
         .form-row { display: flex; flex-direction: column; margin-bottom: 12px;}
-        .form-row label { font-size: 13px; font-weight: bold; color: #334155; margin-bottom: 4px;}
-        .form-row input, .form-row select, .form-row textarea { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; background: #f8fafc; box-sizing: border-box; font-family: inherit; font-weight: bold;}
-        .form-row input:focus, .form-row select:focus, .form-row textarea:focus { border-color: var(--primary-color); outline: none; background: #fff;}
-        .form-section-label { background: #e2e8f0; padding: 5px 10px; font-size: 12px; font-weight: bold; color: #0f172a; margin: 15px 0 10px 0; border-radius: 4px;}
+        .form-row label { font-size: 13px; font-weight: bold; color: var(--text-color); margin-bottom: 4px;}
+        .form-row input, .form-row select, .form-row textarea { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 14px; background: var(--input-bg); color: var(--text-color); box-sizing: border-box; font-family: inherit; font-weight: bold; transition: 0.3s; outline: none;}
+        .form-row input:focus, .form-row select:focus, .form-row textarea:focus { border-color: var(--primary-color); background: var(--card-bg);}
+        .form-section-label { background: var(--border-color); padding: 5px 10px; font-size: 12px; font-weight: bold; color: var(--text-color); margin: 15px 0 10px 0; border-radius: 4px;}
         
-        .action-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: white; display: flex; justify-content: space-between; padding: 12px; box-sizing: border-box; border-top: 1px solid #e2e8f0; z-index: 1000;}
+        .action-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--card-bg); display: flex; justify-content: space-between; padding: 12px; box-sizing: border-box; border-top: 1px solid var(--border-color); z-index: 1000; transition: 0.3s;}
         .btn { flex: 1; background-color: var(--primary-color); color: white; border: none; padding: 12px 5px; font-size: 13px; font-weight: bold; border-radius: 6px; margin: 0 5px; cursor: pointer;}
         .btn-secondary { background-color: #64748b; }
-        .btn-back { background-color: #f1f5f9; color: #333; border: 1px solid #cbd5e1; flex: 0.4; display: flex; align-items: center; justify-content: center; text-decoration: none;}
+        .btn-back { background-color: var(--input-bg); color: var(--text-color); border: 1px solid var(--border-color); flex: 0.4; display: flex; align-items: center; justify-content: center; text-decoration: none; border-radius: 6px; font-weight: bold;}
         
+        #save-alert { position: fixed; top: 10px; right: 10px; background: #166534; color: white; padding: 8px 15px; border-radius: 6px; font-size: 12px; font-weight: bold; display: none; z-index: 2000; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: opacity 0.3s;}
+
         #print-area { display: none; }
         
-        /* ================= ÁREA DE IMPRESIÓN (CLON DEL ORIGINAL) ================= */
+        /* ================= ÁREA DE IMPRESIÓN ================= */
         @media print {
             @page { size: 297mm 210mm !important; margin: 8mm; }
-            body { background-color: white; padding: 0; margin: 0; font-family: Arial, Helvetica, sans-serif; }
-            #app-area, .action-bar { display: none !important; }
+            body { background-color: white !important; padding: 0; margin: 0; font-family: Arial, Helvetica, sans-serif; color: black !important;}
+            #app-area, .action-bar, #save-alert { display: none !important; }
             #print-area { display: block !important; padding: 0; width: 100%; }
             
-            /* Bordes gruesos exteriores */
             .print-wrapper { border: 3px solid #000; padding: 2px; }
-
-            /* Cabecera Principal */
             .header-table { width: 100%; border-collapse: collapse; margin-bottom: 5px; border: 2px solid #000; }
-            .header-table td { border: 1px solid #000; padding: 4px; }
+            .header-table td { border: 1px solid #000; padding: 4px; color: black !important;}
             .ht-logo { width: 20%; text-align: center; font-size: 22px; font-weight: bold; color: #000;}
             .ht-title { width: 60%; text-align: center; font-size: 12px; font-weight: bold;}
             .ht-codes { width: 20%; font-size: 7px; line-height: 1.5; padding-left: 5px !important;}
             .ht-fecha { display: flex; align-items: center; justify-content: flex-start; font-size: 9px; font-weight: bold;}
-            .ht-fecha u { flex-grow: 1; border-bottom: 1px solid #000; text-decoration: none; margin-left: 5px; text-align: center;}
+            .ht-fecha u { flex-grow: 1; border-bottom: 1px solid #000; text-decoration: none; margin-left: 5px; text-align: center; color: black !important;}
 
             .print-info-grid { display: flex; justify-content: space-between; font-size: 9px; font-weight: bold; margin-bottom: 5px; padding: 0 5px;}
-            .print-info-grid u { text-decoration: none; border-bottom: 1px solid #000; display: inline-block; width: 150px; text-align: center; font-weight: normal;}
+            .print-info-grid u { text-decoration: none; border-bottom: 1px solid #000; display: inline-block; width: 150px; text-align: center; font-weight: normal; color: black !important;}
 
-            /* Contenedor Medio: Datos y Foto */
             .middle-container { display: flex; gap: 5px; margin-bottom: 5px; }
             
-            /* Tabla Datos Técnicos */
             .tech-table { width: 45%; border-collapse: collapse; border: 2px solid #000; font-size: 8px;}
-            .tech-table th { background-color: #000080 !important; color: white !important; font-weight: bold; text-align: center; padding: 4px; font-size: 9px; border: 1px solid #000;}
-            .tech-table td { border: 1px solid #cbd5e1; padding: 3px 5px; font-weight: bold; }
-            .tech-table tr:nth-child(even) td { background-color: #e2e8f0 !important; }
-            .tech-table tr:nth-child(odd) td { background-color: #f8fafc !important; }
-            .tech-table td:first-child { color: #0f172a; }
-            .tech-table td:last-child { color: #475569; }
+            .tech-table th { background-color: #e0e0e0 !important; color: black !important; font-weight: bold; text-align: center; padding: 4px; font-size: 9px; border: 1px solid #000;}
+            .tech-table td { border: 1px solid #000; padding: 3px 5px; font-weight: bold; color: black !important;}
+            .tech-table tr:nth-child(even) td { background-color: #f0f0f0 !important; }
+            .tech-table tr:nth-child(odd) td { background-color: #ffffff !important; }
 
-            /* Imagen Referencial */
             .img-box { width: 55%; border: 2px solid #000; text-align: center; display: flex; align-items: center; justify-content: center; padding: 2px;}
             .img-box img { max-height: 180px; max-width: 100%; object-fit: contain; }
 
-            /* Tabla de Inspección Principal */
             .insp-table { width: 100%; border-collapse: collapse; border: 2px solid #000; font-size: 7px; text-align: center; margin-bottom: 10px;}
-            .insp-table th, .insp-table td { border: 1px solid #000; padding: 3px 1px; }
-            .insp-table th { background-color: #d1d5db !important; font-weight: bold; }
+            .insp-table th, .insp-table td { border: 1px solid #000 !important; padding: 3px 1px; color: black !important;}
+            .insp-table th { background-color: #e2e8f0 !important; font-weight: bold; }
             .bg-grey { background-color: #e5e7eb !important; font-weight: bold;}
             .bg-light-grey { background-color: #f3f4f6 !important;}
             
@@ -99,22 +118,25 @@
             .col-giro-lev { width: 5%; }
             .col-motor { width: 6%; }
 
-            /* Colores de Evaluación PDF */
-            .estado-c { background-color: #dcfce7 !important; font-weight: bold; color: #000 !important;} 
-            .estado-nc { background-color: #fee2e2 !important; font-weight: bold; color: #000 !important;} 
+            .estado-c { background-color: #dcfce7 !important; font-weight: bold; color: #166534 !important;} 
+            .estado-rs { background-color: #fef08a !important; font-weight: bold; color: #854d0e !important;} 
+            .estado-nc { background-color: #fee2e2 !important; font-weight: bold; color: #991b1b !important;} 
             
             * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
             
             .signatures-container { display: flex; justify-content: space-around; margin-top: 15px; padding-bottom: 10px;}
-            .signature-block { text-align: center; width: 180px; font-size: 9px; font-weight: bold; border-top: 1px solid #000; padding-top: 4px;}
+            .signature-block { text-align: center; width: 180px; font-size: 9px; font-weight: bold; border-top: 1px solid #000; padding-top: 4px; color: black !important;}
         }
     </style>
 </head>
 <body>
+
+<div id="save-alert">✅ Datos guardados en el celular</div>
+
 <div id="app-area">
     <div class="action-bar">
-        <a href="index.html" class="btn btn-back">⬅️</a>
-        <button class="btn btn-secondary" onclick="limpiarTodo()">Limpiar</button>
+        <a href="index.html" class="btn btn-back">⬅️ Volver</a>
+        <button class="btn btn-secondary" onclick="limpiarTodo()">Limpiar Reporte</button>
         <button class="btn" onclick="generarPDFNativo()">🖨️ Crear PDF</button>
     </div>
 
@@ -124,13 +146,13 @@
 
     <div class="app-card">
         <div class="info-grid">
-            <div class="info-field"><label>INSPECCIONADO POR:</label><input type="text" id="g_inspector" value=></div>
+            <div class="info-field"><label>INSPECCIONADO POR:</label><input type="text" id="g_inspector"></div>
             <div class="info-field"><label>GUARDIA / TURNO:</label><input type="text" id="g_turno"></div>
             <div class="info-field"><label>FECHA:</label><input type="date" id="g_fecha"></div>
         </div>
     </div>
 
-    <div class="app-card" style="background-color: #f1f5f9;">
+    <div class="app-card" style="background-color: var(--input-bg); border-color: var(--border-color);">
         <h3 class="tech-card-title">Datos Técnicos Generales</h3>
         <div class="tech-grid">
             <div><strong>Fabricante:</strong> FLSMIDTH</div><div><strong>Modelo:</strong> C120P-6</div>
@@ -142,7 +164,7 @@
     </div>
 
     <div class="app-card">
-        <p style="font-size:13px; margin-top:0;">Selecciona el Espesador:</p>
+        <p style="font-size:13px; color:var(--text-muted); margin-top:0;"><strong>Instrucciones:</strong> Selecciona el Espesador para inspeccionarlo. Los datos se guardan solos.</p>
         <div class="pump-grid" id="grid-espesadores"></div>
         
         <div id="dynamic-form-container">
@@ -150,7 +172,7 @@
             
             <div class="form-img-container">
                 <img src="espesador.png" alt="Espesador de Relaves">
-                <br><span style="font-size:11px; color:#64748b;">Imagen Referencial</span>
+                <br><span style="font-size:11px; color:var(--text-muted);">Imagen Referencial</span>
             </div>
 
             <div id="form-fields"></div>
@@ -211,7 +233,12 @@
 </div>
 
 <script>
-    let baseDatos = {}; let equipoActual = null;
+    let baseDatos = {}; 
+    let equipoActual = null;
+
+    const LS_KEY = 'metso_espesadores_3710_data';
+    const LS_GENERAL_KEY = 'metso_general_info';
+
     const tags = ['3710-TH-001', '3710-TH-002'];
     
     const config = [
@@ -234,12 +261,46 @@
     config.push({ id: 'obs', label: 'OBSERVACIONES', type: 'textarea', eval: 'none' });
 
     window.onload = () => {
+        // LECTOR DE TEMA DEL INDEX
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark-theme');
+        }
+
+        // INFO GENERAL COMPARTIDA
+        let savedGeneral = JSON.parse(localStorage.getItem(LS_GENERAL_KEY)) || {};
+        document.getElementById('g_inspector').value = savedGeneral.inspector !== undefined ? savedGeneral.inspector : 'Hebry Caballero Cacyavilca';
+        if(savedGeneral.turno) document.getElementById('g_turno').value = savedGeneral.turno;
+        if(savedGeneral.fecha) document.getElementById('g_fecha').value = savedGeneral.fecha;
+
+        document.getElementById('g_inspector').addEventListener('input', e => saveGeneral('inspector', e.target.value));
+        document.getElementById('g_turno').addEventListener('input', e => saveGeneral('turno', e.target.value));
+        document.getElementById('g_fecha').addEventListener('input', e => saveGeneral('fecha', e.target.value));
+
+        // CARGA DE DATOS LOCAL
+        let savedData = localStorage.getItem(LS_KEY);
+        if (savedData) { baseDatos = JSON.parse(savedData); }
+
         const grid = document.getElementById('grid-espesadores');
         tags.forEach(t => {
-            const btn = document.createElement('button'); btn.className='pump-btn'; btn.id=`btn-${t}`; btn.innerText=t;
-            btn.onclick = () => abrirFormulario(t); grid.appendChild(btn);
+            const btn = document.createElement('button'); 
+            btn.className = 'pump-btn'; 
+            btn.id = `btn-${t}`; 
+            btn.innerText = t;
+
+            if (baseDatos[t] && Object.values(baseDatos[t]).some(v => v !== '')) {
+                btn.classList.add('completed');
+            }
+
+            btn.onclick = () => abrirFormulario(t); 
+            grid.appendChild(btn);
         });
     };
+
+    function saveGeneral(key, value) {
+        let savedGeneral = JSON.parse(localStorage.getItem(LS_GENERAL_KEY)) || {};
+        savedGeneral[key] = value;
+        localStorage.setItem(LS_GENERAL_KEY, JSON.stringify(savedGeneral));
+    }
 
     function abrirFormulario(tag) {
         equipoActual = tag;
@@ -254,21 +315,44 @@
             if (c.isSection) { cont.innerHTML += `<div class="form-section-label">${c.label}</div>`; return; }
             let val = d[c.id] || ''; let input = '';
             
-            if (c.type === 'number') input = `<input type="number" step="0.1" value="${val}" onchange="guardar('${c.id}', this.value)">`;
-            if (c.type === 'textarea') input = `<textarea rows="2" onchange="guardar('${c.id}', this.value)">${val}</textarea>`;
-            if (c.type === 'select_sino') input = `<select onchange="guardar('${c.id}', this.value)"><option value=""></option><option value="NO">NO (Sin fugas)</option><option value="SI">SI (Fuga)</option></select>`;
+            if (c.type === 'number') input = `<input type="number" step="0.1" value="${val}" onchange="guardarDato('${c.id}', this.value)">`;
+            if (c.type === 'textarea') input = `<textarea rows="2" onchange="guardarDato('${c.id}', this.value)">${val}</textarea>`;
+            if (c.type === 'select_sino') input = `<select onchange="guardarDato('${c.id}', this.value)"><option value=""></option><option value="NO" ${val==='NO'?'selected':''}>NO (Sin fugas)</option><option value="SI" ${val==='SI'?'selected':''}>SI (Fuga)</option></select>`;
             
             cont.innerHTML += `<div class="form-row"><label>${c.label}</label>${input}</div>`;
         });
         document.getElementById('dynamic-form-container').style.display = 'block';
     }
 
-    function guardar(id, val) {
-        if(!baseDatos[equipoActual]) baseDatos[equipoActual]={}; baseDatos[equipoActual][id]=val;
-        document.getElementById(`btn-${equipoActual}`).classList.add('completed');
+    function mostrarAlerta() {
+        const alertBox = document.getElementById('save-alert');
+        alertBox.style.display = 'block'; alertBox.style.opacity = '1';
+        setTimeout(() => { alertBox.style.opacity = '0'; setTimeout(() => { alertBox.style.display = 'none'; }, 300); }, 1200);
+    }
+
+    function guardarDato(id, val) {
+        if(!baseDatos[equipoActual]) baseDatos[equipoActual] = {}; 
+        baseDatos[equipoActual][id] = val;
+        
+        localStorage.setItem(LS_KEY, JSON.stringify(baseDatos));
+        validarCompletado();
+        mostrarAlerta();
+    }
+
+    function validarCompletado() {
+        const d = baseDatos[equipoActual];
+        let tieneDato = Object.values(d).some(v => v !== '');
+        if (tieneDato) {
+            document.getElementById(`btn-${equipoActual}`).classList.add('completed');
+        } else {
+            document.getElementById(`btn-${equipoActual}`).classList.remove('completed');
+        }
     }
     
-    function cerrarFormulario() { document.getElementById('dynamic-form-container').style.display = 'none'; document.querySelectorAll('.pump-btn').forEach(b => b.classList.remove('active')); }
+    function cerrarFormulario() { 
+        document.getElementById('dynamic-form-container').style.display = 'none'; 
+        document.querySelectorAll('.pump-btn').forEach(b => b.classList.remove('active')); 
+    }
     
     function evaluarColor(val, regla) {
         if(!val) return '';
@@ -277,8 +361,8 @@
     }
 
     function generarPDFNativo() {
-        let llenos = tags.filter(t => baseDatos[t]);
-        if(llenos.length===0) return alert("⚠️ Llena un equipo primero.");
+        let llenos = tags.filter(t => baseDatos[t] && Object.values(baseDatos[t]).some(v => v !== ''));
+        if(llenos.length === 0) return alert("⚠️ No has llenado ningún equipo.");
         
         let fecha = document.getElementById('g_fecha').value || new Date().toISOString().split('T')[0];
         document.getElementById('p_inspector').innerText = document.getElementById('g_inspector').value;
@@ -319,18 +403,18 @@
                 <tbody>
                     <tr>
                         <td class="bg-grey">${t}</td>
-                        <td style="font-weight:bold;">${d.torque || ''}</td>
-                        <td style="font-weight:bold;">${d.n_giro || ''}</td>
+                        <td style="font-weight:bold;">${d.torque ? d.torque + '%' : ''}</td>
+                        <td style="font-weight:bold;">${d.n_giro ? d.n_giro + '%' : ''}</td>
                         <td class="${evaluarColor(d.t_giro, 'temp')}">${d.t_giro || ''}</td>
-                        <td style="font-weight:bold;">${d.n_lev || ''}</td>
+                        <td style="font-weight:bold;">${d.n_lev ? d.n_lev + '%' : ''}</td>
                         <td class="${evaluarColor(d.t_lev, 'temp')}">${d.t_lev || ''}</td>
                         
-                        <td style="font-weight:bold;">${d.n_m1 || ''}</td><td class="${evaluarColor(d.t_m1, 'temp')}">${d.t_m1 || ''}</td>
-                        <td style="font-weight:bold;">${d.n_m2 || ''}</td><td class="${evaluarColor(d.t_m2, 'temp')}">${d.t_m2 || ''}</td>
-                        <td style="font-weight:bold;">${d.n_m3 || ''}</td><td class="${evaluarColor(d.t_m3, 'temp')}">${d.t_m3 || ''}</td>
-                        <td style="font-weight:bold;">${d.n_m4 || ''}</td><td class="${evaluarColor(d.t_m4, 'temp')}">${d.t_m4 || ''}</td>
-                        <td style="font-weight:bold;">${d.n_m5 || ''}</td><td class="${evaluarColor(d.t_m5, 'temp')}">${d.t_m5 || ''}</td>
-                        <td style="font-weight:bold;">${d.n_m6 || ''}</td><td class="${evaluarColor(d.t_m6, 'temp')}">${d.t_m6 || ''}</td>
+                        <td style="font-weight:bold;">${d.n_m1 ? d.n_m1 + '%' : ''}</td><td class="${evaluarColor(d.t_m1, 'temp')}">${d.t_m1 || ''}</td>
+                        <td style="font-weight:bold;">${d.n_m2 ? d.n_m2 + '%' : ''}</td><td class="${evaluarColor(d.t_m2, 'temp')}">${d.t_m2 || ''}</td>
+                        <td style="font-weight:bold;">${d.n_m3 ? d.n_m3 + '%' : ''}</td><td class="${evaluarColor(d.t_m3, 'temp')}">${d.t_m3 || ''}</td>
+                        <td style="font-weight:bold;">${d.n_m4 ? d.n_m4 + '%' : ''}</td><td class="${evaluarColor(d.t_m4, 'temp')}">${d.t_m4 || ''}</td>
+                        <td style="font-weight:bold;">${d.n_m5 ? d.n_m5 + '%' : ''}</td><td class="${evaluarColor(d.t_m5, 'temp')}">${d.t_m5 || ''}</td>
+                        <td style="font-weight:bold;">${d.n_m6 ? d.n_m6 + '%' : ''}</td><td class="${evaluarColor(d.t_m6, 'temp')}">${d.t_m6 || ''}</td>
                     </tr>
                     <tr>
                         <td colspan="3" class="bg-grey" style="text-align: right; padding-right: 10px;">FUGAS Y DERRAMES</td>
@@ -351,9 +435,18 @@
         document.getElementById('print-tables-container').innerHTML = htmlContainer;
         document.title = "Checklist_Espesadores_3710_" + fecha;
         window.print();
+        document.title = "Inspección Espesadores 3710";
     }
     
-    function limpiarTodo() { if(confirm("¿Borrar todos los datos ingresados?")) { baseDatos={}; document.querySelectorAll('input, select, textarea').forEach(i=>{ if(i.id !== 'g_inspector') i.value=''; }); cerrarFormulario(); document.querySelectorAll('.pump-btn').forEach(b=>b.classList.remove('completed')); } }
+    function limpiarTodo() { 
+        if(confirm("¿Borrar todos los datos ingresados?")) { 
+            baseDatos = {}; 
+            localStorage.removeItem(LS_KEY);
+            document.querySelectorAll('input:not([id="g_inspector"]):not([id="g_turno"]):not([id="g_fecha"]), select, textarea').forEach(i => i.value = ''); 
+            cerrarFormulario(); 
+            document.querySelectorAll('.pump-btn').forEach(b => b.classList.remove('completed', 'active')); 
+        } 
+    }
 </script>
 </body>
 </html>

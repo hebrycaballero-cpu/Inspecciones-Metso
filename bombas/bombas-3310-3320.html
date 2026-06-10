@@ -6,76 +6,96 @@
     <title>Inspección Bombas 3310 y 3320</title>
 
     <style>
-        :root { --primary-color: #d32f2f; --dark-bg: #1e293b; --light-bg: #f1f5f9; --border-color: #cbd5e1; --input-bg: #ffffff; --success: #22c55e;}
-        body { font-family: 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 0; background-color: var(--light-bg); color: #333; }
+        /* VARIABLES DE DISEÑO Y MODO OSCURO */
+        :root { 
+            --primary-color: #d32f2f; 
+            --dark-bg: #1e293b; 
+            --light-bg: #f1f5f9; 
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --text-muted: #64748b;
+            --border-color: #cbd5e1; 
+            --input-bg: #f8fafc; 
+            --success: #22c55e;
+        }
+
+        body.dark-theme {
+            --dark-bg: #020617; 
+            --light-bg: #0f172a; 
+            --card-bg: #1e293b;
+            --text-color: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #334155; 
+            --input-bg: #0f172a;
+        }
+
+        body { font-family: 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 0; background-color: var(--light-bg); color: var(--text-color); transition: background 0.3s, color 0.3s; }
         
         /* ================= APP UI (Pantalla) ================= */
         #app-area { max-width: 900px; margin: 0 auto; padding: 15px; padding-bottom: 80px; }
-        .app-card { background: #ffffff; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; }
+        .app-card { background: var(--card-bg); border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border: 1px solid var(--border-color); transition: 0.3s; }
         
         .header-mobile { text-align: center; margin-bottom: 10px; }
-        .header-mobile h1 { font-size: 18px; color: var(--dark-bg); margin: 0 0 5px 0; text-transform: uppercase;}
-        .header-mobile p { font-size: 13px; color: #64748b; margin: 0; }
+        .header-mobile h1 { font-size: 18px; color: var(--text-color); margin: 0 0 5px 0; text-transform: uppercase;}
+        .header-mobile p { font-size: 13px; color: var(--text-muted); margin: 0; }
 
         .info-grid { display: grid; grid-template-columns: 1fr; gap: 15px; }
         @media(min-width: 600px) { .info-grid { grid-template-columns: repeat(3, 1fr); gap: 20px; } }
         
         .info-field { display: flex; flex-direction: column; gap: 6px; justify-content: flex-end; }
-        .info-field label { font-size: 12px; font-weight: 700; color: #475569; }
-        .info-field input { width: 100%; height: 42px; border: 1px solid var(--border-color); border-radius: 6px; padding: 0 12px; font-size: 14px; outline: none; box-sizing: border-box; font-family: inherit;}
+        .info-field label { font-size: 12px; font-weight: 700; color: var(--text-muted); }
+        .info-field input { width: 100%; height: 42px; border: 1px solid var(--border-color); border-radius: 6px; padding: 0 12px; font-size: 14px; outline: none; box-sizing: border-box; font-family: inherit; font-weight:bold; background-color: var(--input-bg); color: var(--text-color); transition: 0.3s;}
         .info-field input:focus { border-color: var(--primary-color); }
 
         /* Selector de Bombas */
-        .pump-section-title { font-size: 14px; color: var(--dark-bg); border-bottom: 2px solid #e2e8f0; padding-bottom: 5px; margin-top: 20px; margin-bottom: 10px;}
+        .pump-section-title { font-size: 14px; color: white; background: var(--primary-color); padding: 8px 12px; margin-top: 20px; margin-bottom: 10px; border-radius: 6px; font-weight: bold; text-transform: uppercase; box-shadow: 0 2px 5px rgba(211,47,47,0.2);}
         .pump-grid { display: flex; flex-wrap: wrap; gap: 10px; }
         
-        .pump-btn { 
-            background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 12px 10px; 
-            font-size: 13px; font-weight: bold; color: #475569; cursor: pointer; transition: 0.2s; flex: 1; min-width: 130px; text-align: center;
-        }
-        .pump-btn:hover { background: #e2e8f0; }
-        .pump-btn.active { border-color: var(--primary-color); background: #fef2f2; color: var(--primary-color); }
+        .pump-btn { background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px 10px; font-size: 13px; font-weight: bold; color: var(--text-color); cursor: pointer; transition: 0.2s; flex: 1; min-width: 130px; text-align: center; }
+        .pump-btn:hover { background: var(--border-color); }
+        .pump-btn.active { border-color: var(--primary-color); background: #fef2f2; color: #b91c1c; box-shadow: 0 0 10px rgba(211,47,47,0.3); }
         .pump-btn.completed { background: #dcfce7; border-color: var(--success); color: #166534; }
+        body.dark-theme .pump-btn.completed { background: #14532d; border-color: var(--success); color: #4ade80; }
 
         /* Formulario Dinámico Activo */
-        #dynamic-form-container { display: none; background: #fff; border: 2px solid var(--primary-color); border-radius: 12px; padding: 20px; margin-top: 20px; box-shadow: 0 4px 15px rgba(211,47,47,0.15);}
-        .form-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; margin-bottom: 15px;}
+        #dynamic-form-container { display: none; background: var(--card-bg); border: 2px solid var(--primary-color); border-radius: 12px; padding: 20px; margin-top: 20px; box-shadow: 0 4px 15px rgba(211,47,47,0.2); transition: 0.3s;}
+        .form-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; margin-bottom: 15px;}
         .form-header h3 { margin: 0; color: var(--primary-color); font-size: 16px;}
-        .close-btn { background: #f1f5f9; border: none; padding: 5px 10px; border-radius: 6px; font-weight: bold; cursor: pointer;}
+        .close-btn { background: var(--border-color); border: none; padding: 5px 10px; border-radius: 6px; font-weight: bold; cursor: pointer; color: var(--text-color);}
         
-        .form-img-container { text-align: center; margin-bottom: 15px; background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 8px; padding: 10px; }
+        .form-img-container { text-align: center; margin-bottom: 15px; background: var(--input-bg); border: 1px dashed var(--border-color); border-radius: 8px; padding: 10px; transition: 0.3s;}
         .form-img-container img { max-height: 140px; max-width: 100%; object-fit: contain; }
 
         .form-row { display: flex; flex-direction: column; margin-bottom: 12px;}
-        .form-row label { font-size: 13px; font-weight: bold; color: #334155; margin-bottom: 4px;}
-        .form-row input, .form-row select, .form-row textarea { padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; background: #f8fafc; outline: none; font-weight: bold; font-family: inherit;}
-        .form-row input:focus, .form-row select:focus, .form-row textarea:focus { border-color: var(--primary-color); background: #fff;}
-        .form-section-label { background: #e2e8f0; padding: 5px 10px; font-size: 12px; font-weight: bold; color: #0f172a; margin: 15px 0 10px 0; border-radius: 4px;}
+        .form-row label { font-size: 13px; font-weight: bold; color: var(--text-color); margin-bottom: 4px;}
+        .form-row input, .form-row select, .form-row textarea { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 14px; background: var(--input-bg); color: var(--text-color); outline: none; font-weight: bold; font-family: inherit; box-sizing: border-box; transition: 0.3s;}
+        .form-row input:focus, .form-row select:focus, .form-row textarea:focus { border-color: var(--primary-color); background: var(--card-bg);}
+        .form-section-label { background: var(--border-color); padding: 5px 10px; font-size: 12px; font-weight: bold; color: var(--text-color); margin: 15px 0 10px 0; border-radius: 4px;}
 
-        .action-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: white; display: flex; justify-content: space-between; padding: 12px; box-sizing: border-box; z-index: 1000; border-top: 1px solid #e2e8f0; }
+        .action-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--card-bg); display: flex; justify-content: space-between; padding: 12px; box-sizing: border-box; z-index: 1000; border-top: 1px solid var(--border-color); transition: 0.3s; }
         .btn { flex: 1; background-color: var(--primary-color); color: white; border: none; padding: 12px 5px; font-size: 13px; font-weight: bold; border-radius: 6px; margin: 0 5px; cursor: pointer;}
         .btn-secondary { background-color: #64748b; }
-        .btn-back { background-color: #f1f5f9; color: #333; border: 1px solid #cbd5e1; flex: 0.4; display: flex; align-items: center; justify-content: center; text-decoration: none;}
+        .btn-back { background-color: var(--input-bg); color: var(--text-color); border: 1px solid var(--border-color); flex: 0.4; display: flex; align-items: center; justify-content: center; text-decoration: none; border-radius: 6px; font-weight: bold;}
+
+        #save-alert { position: fixed; top: 10px; right: 10px; background: #166534; color: white; padding: 8px 15px; border-radius: 6px; font-size: 12px; font-weight: bold; display: none; z-index: 2000; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: opacity 0.3s;}
 
         /* ================= ÁREA DE IMPRESIÓN PDF ================= */
         #print-area { display: none; }
 
         @media print {
-            body { background-color: white; padding: 0; margin: 0; }
-            #app-area, .action-bar { display: none !important; }
+            @page { size: A4 portrait; margin: 10mm; }
+            body { background-color: white !important; padding: 0; margin: 0; color: black !important; }
+            #app-area, .action-bar, #save-alert { display: none !important; }
             #print-area { display: block !important; padding: 0; max-width: 100%; width: 100%; }
             
-            /* Encabezado PDF */
             .header-table { display: table; width: 100%; margin-bottom: 15px; border-collapse: collapse; }
-            .header-table td { border: 1px solid #000; padding: 8px; }
+            .header-table td { border: 1px solid #000; padding: 8px; color: black !important;}
             
-            /* Datos Generales */
             .print-info-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; border: 1px solid #000; padding: 10px; margin-bottom: 20px;}
-            .print-info-field { font-size: 11px; }
-            .print-info-field span { font-weight: bold; margin-right: 5px; color: black;}
-            .print-info-field u { text-decoration: none; border-bottom: 1px solid #000; display: inline-block; width: 60%; color: black;} 
+            .print-info-field { font-size: 11px; color: black !important;}
+            .print-info-field span { font-weight: bold; margin-right: 5px; color: black !important;}
+            .print-info-field u { text-decoration: none; border-bottom: 1px solid #000; display: inline-block; width: 60%; color: black !important;} 
             
-            /* Tablas Dinámicas Generadas */
             .print-bloque { margin-bottom: 20px; page-break-inside: avoid; border: 1px solid #000; border-bottom: none;}
             .print-bloque h4 { background: #e0e0e0 !important; color: black !important; margin: 0; padding: 5px; border-bottom: 1px solid #000; font-size: 12px; text-align: center;}
             
@@ -83,23 +103,21 @@
             .print-img-box img { max-height: 120px; max-width: 100%; object-fit: contain; }
 
             .inspection-table { border-collapse: collapse; width: 100%; border-bottom: none;}
-            .inspection-table th, .inspection-table td { border: 1px solid #000 !important; border-top: none; padding: 4px !important; font-size: 10px; color: black; text-align: center; }
-            .param-label { text-align: left !important; font-weight: bold; width: 35%; background: #f8fafc !important;}
-            .section-row { text-align: left !important; font-weight: bold; font-size: 10px !important; background-color: #f0f0f0 !important;}
+            .inspection-table th, .inspection-table td { border: 1px solid #000 !important; border-top: none; padding: 4px !important; font-size: 10px; color: black !important; text-align: center; }
+            .param-label { text-align: left !important; font-weight: bold; width: 35%; background: #f8fafc !important; color: black !important;}
+            .section-row { text-align: left !important; font-weight: bold; font-size: 10px !important; background-color: #f0f0f0 !important; color: black !important;}
             
-            /* Observaciones dinámicas por bloque en el PDF */
-            .print-obs-bloque { border-top: 1px solid #000; padding: 5px 8px; font-size: 10px; color: black; background: #fdfdfd !important; text-align: left;}
+            .print-obs-bloque { border-top: 1px solid #000; padding: 5px 8px; font-size: 10px; color: black !important; background: #fdfdfd !important; text-align: left;}
             .print-obs-item { margin-bottom: 3px; }
             .print-obs-item strong { color: #d32f2f !important; }
 
-            /* Colores PDF Automáticos */
-            .estado-c { background-color: #dcfce7 !important; font-weight: bold;} 
-            .estado-rs { background-color: #fef08a !important; font-weight: bold;} 
-            .estado-nc { background-color: #fee2e2 !important; font-weight: bold;} 
+            .estado-c { background-color: #dcfce7 !important; font-weight: bold; color: #166534 !important;} 
+            .estado-rs { background-color: #fef08a !important; font-weight: bold; color: #854d0e !important;} 
+            .estado-nc { background-color: #fee2e2 !important; font-weight: bold; color: #991b1b !important;} 
             * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
 
             .signatures-container { display: flex; justify-content: space-around; margin-top: 30px; }
-            .signature-block { text-align: center; width: 200px; }
+            .signature-block { text-align: center; width: 200px; color: black !important; }
             .signature-line { border-top: 1px solid #000; margin-bottom: 4px; }
             .signature-title { font-size: 10px; font-weight: bold; }
         }
@@ -107,11 +125,12 @@
 </head>
 <body>
 
-<!-- ======================= INTERFAZ DE LA APLICACIÓN ======================= -->
+<div id="save-alert">✅ Datos guardados en el celular</div>
+
 <div id="app-area">
     <div class="action-bar">
-        <a href="index.html" class="btn btn-back">⬅️</a>
-        <button class="btn btn-secondary" onclick="limpiarTodo()">Limpiar</button>
+        <a href="index.html" class="btn btn-back">⬅️ Volver</a>
+        <button class="btn btn-secondary" onclick="limpiarTodo()">Limpiar Reporte</button>
         <button class="btn" onclick="generarPDFNativo()">🖨️ Crear PDF</button>
     </div>
 
@@ -129,7 +148,7 @@
     </div>
 
     <div class="app-card">
-        <p style="font-size:13px; color:#475569; margin-top:0;"><strong>Instrucciones:</strong> Toca el número de la bomba que vas a inspeccionar. Solo las bombas que llenes aparecerán en el PDF final.</p>
+        <p style="font-size:13px; color:var(--text-muted); margin-top:0;"><strong>Instrucciones:</strong> Toca el número de la bomba que vas a inspeccionar. Solo las bombas que llenes aparecerán en el PDF final. Los datos se guardan solos.</p>
         
         <div class="pump-section-title">BOMBAS DE REMOLIENDA 3310 (PU-003, PU-004)</div>
         <div class="pump-grid" id="grid-3310_1"></div>
@@ -140,7 +159,6 @@
         <div class="pump-section-title">BOMBAS DE REMOLIENDA 3320 (PU-001 al PU-003)</div>
         <div class="pump-grid" id="grid-3320"></div>
 
-        <!-- FORMULARIO DINÁMICO OCULTO CON IMAGEN -->
         <div id="dynamic-form-container">
             <div class="form-header">
                 <h3 id="form-title">Bomba</h3>
@@ -153,7 +171,6 @@
     </div>
 </div>
 
-<!-- ======================= ÁREA INVISIBLE PARA IMPRIMIR ======================= -->
 <div id="print-area">
     <table class="header-table">
         <tr>
@@ -169,9 +186,7 @@
         <div class="print-info-field"><span>FECHA:</span> <u id="p_fecha"></u></div>
     </div>
 
-    <div id="print-tables-container">
-        <!-- Las tablas y sus imágenes se construirán aquí automáticamente -->
-    </div>
+    <div id="print-tables-container"></div>
 
     <div class="signatures-container">
         <div class="signature-block"><div class="signature-line"></div><div class="signature-title">SUPERVISOR METSO</div></div>
@@ -179,11 +194,13 @@
     </div>
 </div>
 
-<!-- ======================= LÓGICA DE PROGRAMACIÓN (CEREBRO) ======================= -->
 <script>
     let baseDatos = {}; 
     let bombaActual = null;
     let tipoActual = null;
+
+    const LS_KEY = 'metso_bombas_3310_3320_data';
+    const LS_GENERAL_KEY = 'metso_general_info';
 
     const configBombas = {
         '3310_1': {
@@ -202,8 +219,8 @@
                 { id: 'caudal', label: 'Caudal Q (m3/h)', tipo: 'number', eval: 'none' },
                 { id: 'gap', label: 'GAP de estopas (mm)', tipo: 'number', eval: 'none' },
                 { isSection: true, label: 'CONDICIONES VISUALES' },
-                { id: 'aceite_ll', label: 'Nivel Aceite Motor (LL)', tipo: 'select_c_nc', eval: 'crsnc' },
-                { id: 'aceite_la', label: 'Nivel Aceite Motor (LA)', tipo: 'select_c_nc', eval: 'crsnc' },
+                { id: 'aceite_ll', label: 'Nivel Aceite Motor LL (%)', tipo: 'number', eval: 'aceite' },
+                { id: 'aceite_la', label: 'Nivel Aceite Motor LA (%)', tipo: 'number', eval: 'aceite' },
                 { id: 'estopas', label: 'Estado de Estopas', tipo: 'select_c_nc', eval: 'crsnc' },
                 { id: 'obs', label: 'Observaciones', tipo: 'textarea', eval: 'none' }
             ]
@@ -225,7 +242,7 @@
                 { id: 'pres_sello', label: 'Presión Agua de Sello (PSI)', tipo: 'number', eval: 'none' },
                 { id: 'gap', label: 'GAP de estopas (mm)', tipo: 'number', eval: 'none' },
                 { isSection: true, label: 'CONDICIONES VISUALES' },
-                { id: 'aceite_red', label: 'Nivel Aceite de Reductor', tipo: 'select_c_nc', eval: 'crsnc' },
+                { id: 'aceite_red', label: 'Nivel Aceite Reductor (%)', tipo: 'number', eval: 'aceite' },
                 { id: 'fuga_testigos', label: 'Fuga Testigos Carcasa', tipo: 'select_c_nc', eval: 'crsnc' },
                 { id: 'estopas', label: 'Estado de Estopas', tipo: 'select_c_nc', eval: 'crsnc' },
                 { id: 'obs', label: 'Observaciones', tipo: 'textarea', eval: 'none' }
@@ -248,7 +265,7 @@
                 { id: 'pres_sello', label: 'Presión Agua de Sello (PSI)', tipo: 'number', eval: 'none' },
                 { id: 'gap', label: 'GAP de estopas (mm)', tipo: 'number', eval: 'none' },
                 { isSection: true, label: 'CONDICIONES VISUALES' },
-                { id: 'aceite_red', label: 'Nivel Aceite de Reductor', tipo: 'select_c_nc', eval: 'crsnc' },
+                { id: 'aceite_red', label: 'Nivel Aceite Reductor (%)', tipo: 'number', eval: 'aceite' },
                 { id: 'fuga_testigos', label: 'Fuga Testigos Carcasa', tipo: 'select_c_nc', eval: 'crsnc' },
                 { id: 'estopas', label: 'Estado de Estopas', tipo: 'select_c_nc', eval: 'crsnc' },
                 { id: 'obs', label: 'Observaciones', tipo: 'textarea', eval: 'none' }
@@ -257,6 +274,22 @@
     };
 
     window.onload = function() {
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark-theme');
+        }
+
+        let savedGeneral = JSON.parse(localStorage.getItem(LS_GENERAL_KEY)) || {};
+        document.getElementById('g_inspector').value = savedGeneral.inspector !== undefined ? savedGeneral.inspector : 'Hebry Caballero Cacyavilca';
+        if(savedGeneral.turno) document.getElementById('g_turno').value = savedGeneral.turno;
+        if(savedGeneral.fecha) document.getElementById('g_fecha').value = savedGeneral.fecha;
+
+        document.getElementById('g_inspector').addEventListener('input', e => saveGeneral('inspector', e.target.value));
+        document.getElementById('g_turno').addEventListener('input', e => saveGeneral('turno', e.target.value));
+        document.getElementById('g_fecha').addEventListener('input', e => saveGeneral('fecha', e.target.value));
+
+        let savedData = localStorage.getItem(LS_KEY);
+        if (savedData) { baseDatos = JSON.parse(savedData); }
+
         for (const [tipo, conf] of Object.entries(configBombas)) {
             const grid = document.getElementById(`grid-${tipo}`);
             conf.tags.forEach(tag => {
@@ -264,11 +297,26 @@
                 btn.className = 'pump-btn';
                 btn.id = `btn-${tag}`;
                 btn.innerText = tag;
+                
+                if (baseDatos[tag]) {
+                    let tieneDato = false;
+                    for (let key in baseDatos[tag]) {
+                        if (baseDatos[tag][key] !== '') tieneDato = true;
+                    }
+                    if(tieneDato) btn.classList.add('completed');
+                }
+
                 btn.onclick = () => abrirFormulario(tag, tipo);
                 grid.appendChild(btn);
             });
         }
     };
+
+    function saveGeneral(key, value) {
+        let savedGeneral = JSON.parse(localStorage.getItem(LS_GENERAL_KEY)) || {};
+        savedGeneral[key] = value;
+        localStorage.setItem(LS_GENERAL_KEY, JSON.stringify(savedGeneral));
+    }
 
     function abrirFormulario(tag, tipo) {
         bombaActual = tag;
@@ -276,11 +324,10 @@
 
         document.querySelectorAll('.pump-btn').forEach(b => b.classList.remove('active'));
         document.getElementById(`btn-${tag}`).classList.add('active');
-
         document.getElementById('form-title').innerText = "Inspeccionando: " + tag;
         
         const imagenBomba = configBombas[tipo].imagen;
-        document.getElementById('form-image-wrapper').innerHTML = `<img src="${imagenBomba}" alt="Foto Referencial"><br><span style="font-size:11px; color:#64748b;">Imagen referencial del equipo</span>`;
+        document.getElementById('form-image-wrapper').innerHTML = `<img src="${imagenBomba}" alt="Foto Referencial"><br><span style="font-size:11px; color:var(--text-muted);">Imagen referencial del equipo</span>`;
 
         const formContainer = document.getElementById('form-fields');
         formContainer.innerHTML = ''; 
@@ -308,7 +355,7 @@
                                 <option value="NC" ${valorActual==='NC'?'selected':''}>NC - No Conforme</option>
                              </select>`;
             } else if (c.tipo === 'textarea') {
-                inputHtml = `<textarea onchange="guardarDato('${c.id}', this.value)" rows="3" style="width:100%; border: 1px solid #cbd5e1; border-radius: 6px; padding: 10px; font-size: 14px; background: #f8fafc; outline: none; font-weight: bold; resize:none; font-family: inherit;">${valorActual}</textarea>`;
+                inputHtml = `<textarea onchange="guardarDato('${c.id}', this.value)" rows="3" style="width:100%; border: 1px solid var(--border-color); border-radius: 6px; padding: 10px; font-size: 14px; background: var(--input-bg); color: var(--text-color); outline: none; font-weight: bold; resize:none; font-family: inherit; transition: 0.3s;">${valorActual}</textarea>`;
             }
 
             formContainer.innerHTML += `<div class="form-row"><label>${c.label}</label>${inputHtml}</div>`;
@@ -317,18 +364,59 @@
         document.getElementById('dynamic-form-container').style.display = 'block';
     }
 
+    function mostrarAlerta() {
+        const alertBox = document.getElementById('save-alert');
+        alertBox.style.display = 'block'; alertBox.style.opacity = '1';
+        setTimeout(() => { alertBox.style.opacity = '0'; setTimeout(() => { alertBox.style.display = 'none'; }, 300); }, 1200);
+    }
+
     function guardarDato(idCampo, valor) {
         if (!baseDatos[bombaActual]) baseDatos[bombaActual] = {};
         baseDatos[bombaActual][idCampo] = valor;
-        
-        if (valor !== '') {
-            document.getElementById(`btn-${bombaActual}`).classList.add('completed');
+        localStorage.setItem(LS_KEY, JSON.stringify(baseDatos));
+
+        let tieneDato = false;
+        for (let key in baseDatos[bombaActual]) {
+            if (baseDatos[bombaActual][key] !== '') tieneDato = true;
         }
+
+        if (tieneDato) {
+            document.getElementById(`btn-${bombaActual}`).classList.add('completed');
+        } else {
+            document.getElementById(`btn-${bombaActual}`).classList.remove('completed');
+        }
+
+        mostrarAlerta();
     }
 
     function cerrarFormulario() {
         document.getElementById('dynamic-form-container').style.display = 'none';
         document.querySelectorAll('.pump-btn').forEach(b => b.classList.remove('active'));
+    }
+
+    function evaluarColor(valor, regla) {
+        if (!valor) return '';
+        let num = parseFloat(valor);
+        
+        if (regla === 'temp') {
+            if (num <= 60) return 'estado-c';
+            if (num <= 75) return 'estado-rs';
+            return 'estado-nc';
+        } 
+        if (regla === 'pres') {
+            if (num <= 100) return 'estado-c';
+            if (num <= 120) return 'estado-rs';
+            return 'estado-nc';
+        }
+        if (regla === 'aceite') {
+            if (num >= 70) return 'estado-c';
+            if (num >= 40) return 'estado-rs';
+            return 'estado-nc';
+        }
+        if (regla === 'crsnc') {
+            return valor === 'C' ? 'estado-c' : (valor === 'RS' ? 'estado-rs' : 'estado-nc');
+        }
+        return '';
     }
 
     function generarPDFNativo() {
@@ -360,6 +448,7 @@
                         let htmlCeldas = bombasLlenadas.map(tag => {
                             let valor = baseDatos[tag][c.id] || '';
                             let claseColor = evaluarColor(valor, c.eval);
+                            if (valor !== '' && c.eval === 'aceite') valor += '%';
                             return `<td class="${claseColor}">${valor}</td>`;
                         }).join('');
                         htmlFilas += `<tr><td class="param-label">${c.label}</td>${htmlCeldas}</tr>`;
@@ -392,44 +481,18 @@
             }
         }
 
-        if (!hayDatos) {
-            alert("⚠️ No has llenado ninguna bomba. Toca una bomba para empezar.");
-            return;
-        }
+        if (!hayDatos) { alert("⚠️ No has llenado ninguna bomba."); return; }
 
         document.title = "Checklist_Bombas_3310_3320_" + fecha;
         window.print();
         document.title = "Inspección Bombas 3310 y 3320";
     }
 
-    function evaluarColor(valor, regla) {
-        if (!valor) return '';
-        let num = parseFloat(valor);
-        
-        if (regla === 'temp') {
-            if (num <= 60) return 'estado-c';
-            if (num <= 75) return 'estado-rs';
-            return 'estado-nc';
-        } 
-        if (regla === 'pres') {
-            if (num <= 100) return 'estado-c';
-            if (num <= 120) return 'estado-rs';
-            return 'estado-nc';
-        }
-        if (regla === 'crsnc') {
-            return valor === 'C' ? 'estado-c' : (valor === 'RS' ? 'estado-rs' : 'estado-nc');
-        }
-        return '';
-    }
-
     function limpiarTodo() {
         if (confirm("¿Estás seguro de borrar todos los datos ingresados hoy?")) {
-            baseDatos = {};
-            document.querySelectorAll('input, textarea').forEach(i => i.value = '');
-            document.querySelectorAll('.pump-btn').forEach(b => {
-                b.classList.remove('active');
-                b.classList.remove('completed');
-            });
+            baseDatos = {}; localStorage.removeItem(LS_KEY);
+            document.querySelectorAll('input:not([id="g_inspector"]):not([id="g_turno"]):not([id="g_fecha"]), select, textarea').forEach(i => i.value = '');
+            document.querySelectorAll('.pump-btn').forEach(b => { b.classList.remove('active', 'completed'); });
             cerrarFormulario();
         }
     }
